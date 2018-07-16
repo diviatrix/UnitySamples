@@ -47,6 +47,14 @@ public class Chunk : MonoBehaviour {
         }
     }
 
+    public void AddColliders()
+    {
+        foreach (GameObject go in blocks)
+        {
+            go.AddComponent<BoxCollider>();
+        }
+    }
+
 
     // Function to create block, it accepts Vector3 as spawn position.
     GameObject NewBlock(Vector3 coords)
@@ -78,7 +86,6 @@ public class Chunk : MonoBehaviour {
         newBlock.GetComponent<Renderer>().material.color = new Color(Random.value,Random.value,Random.value,Random.value);
 
         // return generated block back
-        return newBlock;
-        
+        return newBlock;        
     }
 }

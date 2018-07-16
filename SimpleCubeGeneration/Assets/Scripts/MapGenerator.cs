@@ -37,6 +37,7 @@ public class MapGenerator : MonoBehaviour {
 
                     // Generate chucnk with desired settings
                     newChunk.Initialize();
+                    newChunk.AddColliders();
                 }
             }
         }

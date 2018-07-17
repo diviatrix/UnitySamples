@@ -47,6 +47,10 @@ public class Chunk : MonoBehaviour {
         }
     }
 
+
+    // dirty crutch to add colliders to all blocks
+    // colliders wont work if you don't do it, dunno why.
+
     public void AddColliders()
     {
         foreach (GameObject go in blocks)
@@ -82,9 +86,6 @@ public class Chunk : MonoBehaviour {
         // set block name with position in array
         newBlock.name = "Block: " + coords; 
         
-        // randomize color of block
-        newBlock.GetComponent<Renderer>().material.color = new Color(Random.value,Random.value,Random.value,Random.value);
-
         // return generated block back
         return newBlock;        
     }

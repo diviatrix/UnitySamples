@@ -19,12 +19,12 @@ public class CameraController : MonoBehaviour {
         if (Input.GetAxis("Vertical") != 0)
         {
             Debug.Log(Input.GetAxis("Vertical"));
-            GetComponent<Rigidbody>().AddForce(transform.forward * Input.GetAxis("Vertical") * Time.deltaTime * moveSpeed);
+            transform.parent.Translate(transform.forward * Input.GetAxis("Vertical") * Time.deltaTime * moveSpeed);
         }
         if (Input.GetAxis("Horizontal") != 0)
         {
             Debug.Log(Input.GetAxis("Horizontal"));
-            GetComponent<Rigidbody>().AddForce(transform.right * Input.GetAxis("Horizontal") * Time.deltaTime * moveSpeed);
+            transform.parent.Translate(transform.right * Input.GetAxis("Horizontal") * Time.deltaTime * moveSpeed);
         }
 	}	
 }

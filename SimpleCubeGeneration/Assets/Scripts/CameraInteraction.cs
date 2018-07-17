@@ -9,6 +9,7 @@ public class CameraInteraction : MonoBehaviour {
     public float clickDelay;
     bool readyToClick = true;
 
+    // initialize method
     void Start ()
     {
         lastClickTime = Time.time;
@@ -16,6 +17,14 @@ public class CameraInteraction : MonoBehaviour {
 
 	// Update is called once per frame
 	void Update () {
+        HandleMouseClicks();        
+    }
+
+
+
+    // Mouse clicks login
+    void HandleMouseClicks()
+    {
         // check  if delay passed
         if (lastClickTime + clickDelay > Time.time)
         {
@@ -24,57 +33,49 @@ public class CameraInteraction : MonoBehaviour {
         else readyToClick = true;
 
         // check if player clicked on any collider
-        // and destroy block
+        // and destroy block with LMB
 		if ((Input.GetAxis("Fire1") > 0) && (readyToClick)) 
 		{
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, 100))
+            if (Physics.Raycast(ray, out hit, 10))
             {
                 Destroy(hit.transform.gameObject);
             }
             lastClickTime = Time.time;
         }
-        // and create block
+        // and create block with RMB
         if ((Input.GetAxis("Fire2") > 0) && (readyToClick))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, 100))
-            {
-                int y = 0;
-
-                for (int i = 0; i <= 3; i++)
-                {
-                    if (CheckBlockOver(hit))
-                    {
-                        y++;
-                    }                    
-                }
+            if (Physics.Raycast(ray, out hit, 10))
+            {                
                 GameObject newBlock = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                                
-                newBlock.transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + y, hit.transform.position.z);
+
+                
+                if (!IsBlockOver(hit))
+                {
+                    newBlock.transform.position = new Vector3(hit.transform.position.x, hit.transform.position.y + 1, hit.transform.position.z);
+                }                
             }
+
             lastClickTime = Time.time;
         }
     }
 
+
     // check is there is block over one we want to build
     // this is to prevent multiple building in same block
 
-    bool CheckBlockOver(RaycastHit hit)
+    bool IsBlockOver(RaycastHit go)
     {
-        bool isBlockOver = false;
+        Ray blockRay = new Ray(go.transform.position, go.transform.up);
+        RaycastHit hit;
 
-        Ray blockRay = new Ray(hit.transform.position, hit.transform.up);
-        if (Physics.Raycast(blockRay, out hit))
-        {
-            if (hit.collider != null)
-                isBlockOver = true;
-        }
-
-        return isBlockOver;
-    }
+        if (Physics.Raycast(blockRay, out hit, 1)) return true;
+        else return false;              
+    }    
 }

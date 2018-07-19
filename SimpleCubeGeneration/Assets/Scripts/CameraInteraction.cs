@@ -67,7 +67,7 @@ public class CameraInteraction : MonoBehaviour {
     }
 
 
-    // check is there is block over one we want to build
+    // check if there is block over one we want to build
     // this is to prevent multiple building in same block
 
     bool IsBlockOver(RaycastHit go)

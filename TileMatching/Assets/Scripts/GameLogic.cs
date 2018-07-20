@@ -44,7 +44,7 @@ public class GameLogic : MonoBehaviour {
 	}
 
 	// Knuth shuffle algorithm :: courtesy of Wikipedia :)
-	void ShuffleGo(List<GameObject> go)
+	public void ShuffleGo(List<GameObject> go)
 	{
         
         for (int t = 0; t < go.Count; t++)
@@ -55,7 +55,12 @@ public class GameLogic : MonoBehaviour {
             go[r] = tmp;
         }
 
-		for (int i = 0; i < Tiles.Count; i++)
+		SetTextureForAllList(go);
+	}
+
+	void SetTextureForAllList(List<GameObject> go)
+	{
+		for (int i = 0; i < go.Count; i++)
 		{
 			Tiles[i].GetComponent<Renderer>().material.mainTexture = TileTextures[i];
 		}
@@ -69,7 +74,6 @@ public class GameLogic : MonoBehaviour {
 		foreach(GameObject go in list)
 		{
 			go.GetComponent<Renderer>().material.mainTexture = backTexture;
-			go.transform.GetComponent<Tile>().isOpen = false;
 		}
 		canClick = true;
 	}

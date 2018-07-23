@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class GameLogic : MonoBehaviour {
 
-	public GameObject pairCounter,livesCounter;
+	public GameObject pairCounterUI,livesCounterUI;
 	
 	public List<GameObject> Tiles;
 	public Texture2D backTexture;
@@ -90,10 +90,10 @@ public class GameLogic : MonoBehaviour {
 	void UpdateUI()
 	{
 		var pairCounter = winPairs-foundPairs;
-		this.pairCounter.GetComponent<Text>().text = "Pairs left: " + pairCounter;
+		this.pairCounterUI.GetComponent<Text>().text = "Pairs left: " + pairCounter;
 
 		var deathCounter = deathPairs-currentDeathPairs;
-		livesCounter.GetComponent<Text>().text = "Lives left: " + deathCounter;
+		livesCounterUI.GetComponent<Text>().text = "Lives left: " + deathCounter;
 	}
 
 	// Game cycle, start end game and so on

@@ -23,23 +23,67 @@ public class GameLogic2 : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-		LoadTextures();	
+		LoadTextures();
+		GeneratePlayField();						
+	}
+
+	public void StartGame()
+	{		
 		ShuffleTextures(textureList);	
-		GeneratePlayField();		
 		FillPlayField();
 	}
 
 	// this fill playfield tiles with with images and params
 	void FillPlayField()
-	{
-		for(int i = 0; i < needDoubles; i++)
+	{		
+
+		// prepare texture list
+		int tileCount = fieldWidth * fieldHeight;
+		int normalTileCount = tileCount - deathPairs*2;
+
+		// debug for textures  count in folder.
+		if(textureList.Count*2 < normalTileCount)
 		{
-			tileMap[i].GetComponent<Tile>().front = textureList[i];
-			tileMap[i].GetComponent<Tile>().back = coverSprite;
+			Debug.LogError("There are not enough textures in Resources/Sprites folder");
+			Debug.LogError("Change field size to smaller or add textures");
+			Debug.LogError("Need textures: " + normalTileCount/2);
+			Debug.LogError("Textures in folder: " + textureList.Count);
+			return;
 		}
 
+		// prepare texture list
+		List<Sprite> tempTexList = new List<Sprite>();
 
-		//ShuffleGo(tileMap);
+		for(int i = 0; i< normalTileCount/2; i++)
+		{
+			tempTexList.Add(textureList[i]);
+			tempTexList.Add(textureList[i]);
+		}
+
+		for(int i = 0; i< deathPairs; i++)
+		{
+			tempTexList.Add(deathSprite);
+			tempTexList.Add(deathSprite);
+		}
+
+		// fill field with texture list		
+		//textureList = tempTexList;
+
+		ShuffleTextures(tempTexList);
+
+		for(int i = 0; i < tileCount; i++)
+		{
+			tileMap[i].GetComponent<Tile>().front = tempTexList[i];
+			tileMap[i].GetComponent<Tile>().back = coverSprite;		
+		}		
+
+		foreach (GameObject go in tileMap)
+		{
+			if (go.GetComponent<Tile>().front == deathSprite)
+			{
+				go.GetComponent<Tile>().isDeath = true;
+			}
+		}
 	}
 
 	// this generates playfield with params
@@ -84,8 +128,7 @@ public class GameLogic2 : MonoBehaviour {
 
 	// Knuth shuffle algorithm :: courtesy of Wikipedia :)
 	public void ShuffleTextures(List<Sprite> tex)
-	{
-        
+	{        
         for (int t = 0; t < tex.Count; t++)
         {
             Sprite tmp = tex[t];
@@ -100,18 +143,5 @@ public class GameLogic2 : MonoBehaviour {
 		foreach (GameObject go in tileMap){
 			go.GetComponent<Tile>().isOpen = !go.GetComponent<Tile>().isOpen;
 		}
-	}
-
-		// Knuth shuffle algorithm :: courtesy of Wikipedia :)
-	public void ShuffleGo(List<GameObject> go)
-	{
-        
-        for (int t = 0; t < go.Count; t++)
-        {
-            GameObject tmp = go[t];
-            int r = Random.Range(t, go.Count);
-            go[t] = go[r];
-            go[r] = tmp;
-        }
 	}
 }

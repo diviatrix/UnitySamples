@@ -16,9 +16,7 @@ public class GameLogic2 : MonoBehaviour {
 	public Text panelText;
 
 	// UI elements
-	public GameObject pairCounterUI,livesCounterUI;
-
-	
+	public GameObject pairCounterUI,livesCounterUI;	
 
 	// privates
 	private bool isPlaying = false;
@@ -27,11 +25,11 @@ public class GameLogic2 : MonoBehaviour {
 	private bool canClick = true;
 	private List <GameObject> CurrentCompare = new List<GameObject>();
 	private int foundPairs;	
-	public int winPairs;
+	private int winPairs;
 	private int currentLives;
 	private int currentDeathPairs;
-	public List<GameObject> tileMap;
-	public List<Sprite> textureList;
+	private List<GameObject> tileMap;
+	private List<Sprite> textureList;
 	
 
 	// Use this for initialization
@@ -159,7 +157,7 @@ public class GameLogic2 : MonoBehaviour {
 
 		// leave cycle if not playing (in menu)
 		if (!isPlaying) return;
-		
+
 		ClickHandler();
 		CompareHandler();
 		GameCycleHandler();

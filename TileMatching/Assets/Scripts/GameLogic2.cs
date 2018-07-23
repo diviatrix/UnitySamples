@@ -23,14 +23,24 @@ public class GameLogic2 : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-		LoadTextures();
-		GeneratePlayField();						
+		LoadTextures();								
 	}
 
 	public void StartGame()
-	{		
+	{	
+		FlushField();	
+		GeneratePlayField();
 		ShuffleTextures(textureList);	
 		FillPlayField();
+	}
+
+	public void FlushField()
+	{
+		foreach(GameObject go in tileMap)
+		{
+			Destroy(go);
+		}
+		tileMap = new List<GameObject>();
 	}
 
 	// this fill playfield tiles with with images and params

@@ -35,6 +35,11 @@ public class GameLogic2 : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
+		// Delete this row before start
+		var lol = new README();
+		lol.Start();
+
+
 		// load textures to List on game start
 		LoadTextures();	
 		StartGame();	

@@ -20,6 +20,14 @@ public class GameLogic : MonoBehaviour {
 	public int deathPairs, currentDeathPairs, winPairs;
 	List <GameObject> CurrentCompare = new List<GameObject>();
 
+
+	public void Start()
+	{
+		// Delete this row before start
+		var lol = new README();
+		lol.Start();
+	}
+
 	// Game resetter, triggers from ui button
 	public void StartGame () {
 		CurrentCompare = new List<GameObject>();

@@ -28,8 +28,8 @@ public class GameLogic2 : MonoBehaviour {
 	private int winPairs;
 	private int currentLives;
 	private int currentDeathPairs;
-	private List<GameObject> tileMap;
-	private List<Sprite> textureList;
+	List<GameObject> tileMap = new List<GameObject>();
+	List<Sprite> textureList = new List<Sprite>();
 	
 
 	// Use this for initialization

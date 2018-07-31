@@ -95,6 +95,15 @@ public class GameStuff : MonoBehaviour {
 	// run every frame
 	void Update () 
 	{
-		
+		detectPressedKeyOrButton();
+	}
+
+	public void detectPressedKeyOrButton()
+	{
+		foreach(KeyCode kcode in Enum.GetValues(typeof(KeyCode)))
+		{
+			if (Input.GetKeyDown(kcode))
+				Debug.Log("KeyCode down: " + kcode);
+		}
 	}
 }

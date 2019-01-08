@@ -17,7 +17,7 @@ public class GameLogic2 : MonoBehaviour {
 
 	// privates
 	private float cameraSize;
-	private int needDoubles;
+	public int needDoubles;
 	
 
 	// Use this for initialization
@@ -32,14 +32,41 @@ public class GameLogic2 : MonoBehaviour {
 	// this fill playfield tiles with with images and params
 	void FillPlayField()
 	{
-		for(int i = 0; i < needDoubles; i++)
+		List<Sprite> tempTexList = new List<Sprite>();
+		
+
+		if(needDoubles+deathPairs <= textureList.Count)
+		{
+			for(int i = 0; i < needDoubles-deathPairs; i++)
+			{
+				tempTexList.Add(textureList[i]);			
+			}
+			for(int i = 0; i < needDoubles-deathPairs; i++)
+			{
+				tempTexList.Add(textureList[i]);			
+			}
+			for(int i = 0; i < deathPairs*2; i++)
+			{
+				tempTexList.Add(deathSprite);			
+			}
+		} 
+		else 
+		{
+			Debug.LogError("Not enough Pictures in list");
+		}
+		
+		
+		textureList = tempTexList;
+		ShuffleTextures(textureList);
+
+		
+		for(int i = 0; i < tileMap.Count; i++)
 		{
 			tileMap[i].GetComponent<Tile>().front = textureList[i];
 			tileMap[i].GetComponent<Tile>().back = coverSprite;
 		}
+		
 
-
-		//ShuffleGo(tileMap);
 	}
 
 	// this generates playfield with params
@@ -47,7 +74,7 @@ public class GameLogic2 : MonoBehaviour {
 	void GeneratePlayField()
 	{	
 		// calculate how much images we need
-		needDoubles = (fieldHeight * fieldWidth)/2 - deathPairs*2;
+		needDoubles = (fieldHeight * fieldWidth)/2;
 
 		// create tile for each element in width*height 
 		for (int width = 0; width < fieldWidth; width++){
@@ -58,7 +85,6 @@ public class GameLogic2 : MonoBehaviour {
 
 				// Change position and make it show spite
 				go.transform.position = new Vector3(width-fieldWidth/2,height-fieldHeight/2,0);
-				go.GetComponent<Tile>().isOpen = true;
 
 				// Add generated to list with all objects
 				tileMap.Add(go);

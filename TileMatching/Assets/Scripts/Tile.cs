@@ -24,13 +24,13 @@ public class Tile : MonoBehaviour {
 			
 			if (_isOpen == true)
 			{
-				Debug.Log("Set true");
+				//Debug.Log("Set true");
 
 				GetComponent<SpriteRenderer>().sprite = front;
 			}
 			else 
 			{
-				Debug.Log("Set False");
+				//Debug.Log("Set False");
 				GetComponent<SpriteRenderer>().sprite = back;
 			}
 		}

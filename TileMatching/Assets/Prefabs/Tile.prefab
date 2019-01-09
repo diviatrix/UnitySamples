@@ -53,7 +53,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isDeath: 0
+<<<<<<< HEAD
   back: {fileID: 21300000, guid: 1c4a91635a501484f86fae340e1f00e3, type: 3}
+=======
+  back: {fileID: 21300000, guid: 63f13a673335381408409ee05f46d9b0, type: 3}
+>>>>>>> master
   front: {fileID: 21300000, guid: 57cd820bda34eb949b29df7fe3193db6, type: 3}
 --- !u!212 &212273203149664440
 SpriteRenderer:

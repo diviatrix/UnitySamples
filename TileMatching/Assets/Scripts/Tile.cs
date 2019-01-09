@@ -24,6 +24,7 @@ public class Tile : MonoBehaviour {
 			
 			if (_isOpen == true)
 			{
+<<<<<<< HEAD
 				//Debug.Log("Set true");
 
 				GetComponent<SpriteRenderer>().sprite = front;
@@ -31,6 +32,12 @@ public class Tile : MonoBehaviour {
 			else 
 			{
 				//Debug.Log("Set False");
+=======
+				GetComponent<SpriteRenderer>().sprite = front;
+			}
+			else 
+			{				
+>>>>>>> master
 				GetComponent<SpriteRenderer>().sprite = back;
 			}
 		}
@@ -40,6 +47,7 @@ public class Tile : MonoBehaviour {
 	public void SwitchOpen()
 	{
 		isOpen = !isOpen;
+<<<<<<< HEAD
 	}
 
 	void Start()
@@ -47,4 +55,7 @@ public class Tile : MonoBehaviour {
 
 	}
 	
+=======
+	}	
+>>>>>>> master
 }

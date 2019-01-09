@@ -129,8 +129,8 @@ public class Building : ClickableObject
         
         saveData.name = buildingName;
         saveData.position.x = transform.position.x;
-        saveData.position.y = transform.position.x;
-        saveData.position.z = transform.position.x;
+        saveData.position.y = transform.position.y;
+        saveData.position.z = transform.position.z;
         saveData.prefabName = buildingPrefab.name;
         GameDataObject.buildingsOnScene.Add(saveData);
     }

@@ -60,14 +60,20 @@ public class GameData : MonoBehaviour
             gold = data.gold;
             wood = data.wood;
 
+            buildingsOnSceneArray = data.buildingsOnSceneArray;
+
             // convert array to list
             buildingsOnScene = new List<SerializableObject>();
             for (int i = 0; i < buildingsOnSceneArray.Length; i++)
             {
                 buildingsOnScene.Add(buildingsOnSceneArray[i]);
             }
-            buildingsOnSceneArray = data.buildingsOnSceneArray;
+            LoadGame();
         }
+    }
+    public void LoadGame()
+    {
+        GameObject.Find("GameControllerObject").GetComponent<GameController>().LoadSavedObjects();
     }
 
     // Start is called before the first frame update

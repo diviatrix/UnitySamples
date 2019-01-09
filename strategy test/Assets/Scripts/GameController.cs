@@ -59,7 +59,7 @@ public class GameController : MonoBehaviour
         FillTopBar();
         UpdateTopBar();
         InstantiateFrame();
-        InstantiateBuildFrame();
+        InstantiateBuildFrame();       
     }
 
     public void SelectedDestroy()
@@ -248,12 +248,30 @@ public class GameController : MonoBehaviour
         {
             if (i < Buildings.Count)
             {
-                buttons[i].GetComponent<Image>().sprite = Buildings[i].GetComponent<Building>().sprite;
-                buttons[i].GetComponentInChildren<Text>().text = Buildings[i].GetComponent<Building>().name;
+                //buttons[i].GetComponent<Image>().sprite = Buildings[i].GetComponent<Building>().sprite;
+                buttons[i].GetComponentInChildren<Text>().text = Buildings[i].GetComponent<Building>().buildingName;
             }
             else
             {
                 buttons[i].SetActive(false);
+            }
+        }
+    }
+    public void LoadSavedObjects()
+    {
+        List<SerializableObject> buildingsOnScene = gameData.buildingsOnScene;
+        
+        if(buildingsOnScene != null)
+        {
+            foreach(SerializableObject so in buildingsOnScene)
+            {
+                foreach(GameObject go in Buildings)
+                {
+                    if (so.name == go.GetComponent<Building>().buildingName)
+                    {
+                        Instantiate(go,new Vector3(so.position.x,so.position.y,so.position.z),Quaternion.identity);
+                    }
+                }
             }
         }
     }

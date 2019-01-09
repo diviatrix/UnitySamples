@@ -5,20 +5,12 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [System.Serializable]
-public struct Position 
-    {
-        public float x;
-        public float y;
-        public float z;
-    }
-
-[System.Serializable]
 public struct SerializableObject
 {
     public string name;
     public string prefabName;
-    public Position position;
-    public Vector3 positionVector;
+    public string position;
+    public string rotation;
 }
 
 public class GameController : MonoBehaviour
@@ -71,7 +63,19 @@ public class GameController : MonoBehaviour
         FillTopBar();
         UpdateTopBar();
         InstantiateFrame();
-        InstantiateBuildFrame();        
+        InstantiateBuildFrame();               
+    }    
+
+    private string Vector3ToJSON(Vector3 vector)
+    {
+        string data = JsonUtility.ToJson(vector, true);
+        return data;
+    }
+
+    private Vector3 Vector3FromJSON(string data)
+    {        
+        Vector3 vector = JsonUtility.FromJson<Vector3>(data);
+        return(vector);
     }
     private void CoreObjectsFindOnScene()
     {
@@ -94,7 +98,7 @@ public class GameController : MonoBehaviour
     public void SelectedDestroy()
     {
         if (!selectedGO) return;        
-        gameData.buildingsOnScene.Remove(selectedGO.GetComponent<Building>().saveData);
+        gameData.bldOnScene.Remove(selectedGO.GetComponent<Building>());
         selectedGO.GetComponent<Building>().DestroyMe();
         ClearSelection();
     }
@@ -154,7 +158,7 @@ public class GameController : MonoBehaviour
             if (CanBuildIt(chosenPrefabToBuild))
             {
                 UpdateTopBar();
-                PlaceObjectNearPoint(point, chosenPrefabToBuild);
+                PlaceObjectNearPoint(chosenPrefabToBuild, point, Quaternion.identity);
             }
         }
 
@@ -260,15 +264,15 @@ public class GameController : MonoBehaviour
     }
 
     // object placer
-    private GameObject PlaceObjectNearPoint(Vector3 clickPoint, GameObject prefab)
+    public GameObject PlaceObjectNearPoint(GameObject prefab, Vector3 clickPoint, Quaternion rot)
     {
         var finalPlacingPosition = grid.GetNearestPointOnGrid(clickPoint);
         GameObject go = GameObject.Instantiate(prefab, userCreatedObjects.transform);
         go.transform.position = finalPlacingPosition;
+        go.transform.rotation = rot;
         Building bld = go.GetComponent<Building>();
         go.name = bld.name;
         return go;
-
     }
 
     // fill ui build panel
@@ -287,52 +291,5 @@ public class GameController : MonoBehaviour
                 buttons[i].SetActive(false);
             }
         }
-    }
-
-    public void SaveSceneObjects()
-    {
-        gameData.buildingsOnScene = new List<SerializableObject>();
-        foreach (Transform userCreatedObject in userCreatedObjects.transform)
-        {
-            Building buildingComponent = userCreatedObject.GetComponent<Building>();
-            SerializableObject saveData = new SerializableObject();
-            saveData.name = buildingComponent.buildingName;
-            saveData.position.x = buildingComponent.transform.position.x;
-            saveData.position.y = buildingComponent.transform.position.y;
-            saveData.position.z = buildingComponent.transform.position.z;
-            saveData.prefabName = buildingComponent.buildingPrefab.name;
-            gameData.buildingsOnScene.Add(saveData);
-        }
-        gameData.SaveData();
-    }
-
-    void WipeUserObjectsOnScene()
-    {
-        if(userCreatedObjects != null)
-        {
-            Destroy(userCreatedObjects);
-        }
-        userCreatedObjects = userCreatedObjectsGO();
-    }
-
-    public void LoadSavedObjects()
-    {   
-        List<SerializableObject> buildingsOnScene = gameData.buildingsOnScene;
-        WipeUserObjectsOnScene();
-
-        if (buildingsOnScene != null)
-        {
-            foreach (SerializableObject so in buildingsOnScene)
-            {
-                foreach (GameObject go in Buildings)
-                {
-                    if (so.name == go.GetComponent<Building>().buildingName)
-                    {
-                        Vector3 newPosition = new Vector3(so.position.x, so.position.y, so.position.z);
-                        GameObject newGo = PlaceObjectNearPoint(newPosition, go);
-                    }
-                }
-            }
-        }
-    }
+    }    
 }

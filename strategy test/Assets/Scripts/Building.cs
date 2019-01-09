@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class Building : ClickableObject
 {
-    public SerializableObject saveData;    
-
     [Header("Prefab settings")]
     public GameObject buildingPrefab;
     public GameObject popupPrefab;
@@ -38,6 +36,7 @@ public class Building : ClickableObject
         building.name = buildingName;    
         normalMat = building.GetComponentInChildren<Renderer>().material;
         GameDataObject = GameObject.Find("GameDataObject").GetComponent<GameData>();
+        GameDataObject.bldOnScene.Add(this);
     }
 
     void AddCollider()
@@ -99,6 +98,16 @@ public class Building : ClickableObject
         GameObject newgo = Instantiate(go,transform.position,Quaternion.identity);
         newgo.transform.SetParent(transform);
         return newgo;
+    }
+    public SerializableObject ObjectSaveData()
+    {
+        SerializableObject saveData; 
+        saveData.name = buildingName;
+        saveData.position = JsonUtility.ToJson(transform.position, true);
+        saveData.rotation = JsonUtility.ToJson(transform.rotation, true);
+        saveData.prefabName = buildingPrefab.name;
+
+        return saveData;
     }
 
     // Update is called once per frame

@@ -5,6 +5,14 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
+[Serializable]
+public class PlayerData
+{
+    public string[] objectsData;
+    public int gold;
+    public int wood;
+}
+
 public class GameData : MonoBehaviour
 {
 
@@ -18,30 +26,14 @@ public class GameData : MonoBehaviour
     public int gold;
     public int wood;
     
-    public List<SerializableObject> buildingsOnScene;
-    public SerializableObject[] buildingsOnSceneArray;
+    public List<Building> bldOnScene;    
 
     // data save to file
-    public void SaveData()
+    public void SaveData(PlayerData data)
     {
         // load file if exist
         BinaryFormatter bf = new BinaryFormatter();
         FileStream file = File.Open(Application.persistentDataPath + "/playerInfo.dat", FileMode.OpenOrCreate);
-
-        // create new savedata
-        PlayerData data = new PlayerData();
-
-        // set game data to savedata
-        data.gold = gold;
-        data.wood = wood;
-
-        // convert list to array
-        buildingsOnSceneArray = new SerializableObject[buildingsOnScene.Count];
-        for (int i = 0; i < buildingsOnScene.Count; i++)
-        {
-            buildingsOnSceneArray[i] = buildingsOnScene[i];
-        }
-        data.buildingsOnSceneArray = buildingsOnSceneArray;
 
         // save it
         bf.Serialize(file, data);
@@ -59,21 +51,64 @@ public class GameData : MonoBehaviour
 
             gold = data.gold;
             wood = data.wood;
-
-            buildingsOnSceneArray = data.buildingsOnSceneArray;
-
-            // convert array to list
-            buildingsOnScene = new List<SerializableObject>();
-            for (int i = 0; i < buildingsOnSceneArray.Length; i++)
+            
+            // trash with gamecontroller
+            GameController gc = GameObject.Find("GameControllerObject").GetComponent<GameController>();
+            
+            bldOnScene.Clear();
+            foreach (Transform child in gc.userCreatedObjects.transform)
             {
-                buildingsOnScene.Add(buildingsOnSceneArray[i]);
+                Destroy(child.gameObject);
             }
-            LoadGame();
+
+            foreach (string s in data.objectsData)
+            {
+                SerializableObject so = JsonUtility.FromJson<SerializableObject>(s);
+
+                foreach(GameObject go in gc.Buildings)
+                {
+                    if (so.name == go.GetComponent<Building>().buildingName)
+                    {
+                        Vector3 newpos = JsonUtility.FromJson<Vector3>(so.position);    
+                        Quaternion newrot = JsonUtility.FromJson<Quaternion>(so.rotation); // #fix rotation, dont work 
+                        gc.PlaceObjectNearPoint(go, newpos, newrot);                                         
+                    }
+                }
+                //Debug.Log(s);
+                
+            }
         }
     }
     public void LoadGame()
     {
-        GameObject.Find("GameControllerObject").GetComponent<GameController>().LoadSavedObjects();
+        LoadData();
+        
+    }
+
+    public void SaveGame()
+    {     
+        // create new player data to serialize
+        PlayerData data = new PlayerData();
+
+        // create new array of objectsData with strings from buildings on scene list
+        data.objectsData = new string[bldOnScene.Count];
+
+        // itereate thru each one
+        for (int i = 0; i < bldOnScene.Count; i++)
+        {
+            data.objectsData[i] = JsonUtility.ToJson(bldOnScene[i].ObjectSaveData(),true);
+        }
+
+        // set game data to savedata
+        data.gold = gold;
+        data.wood = wood;
+
+        SaveData(data);
+    }
+
+    public void RemoveBldFromData()
+    {
+
     }
 
     // Start is called before the first frame update
@@ -96,10 +131,3 @@ public class GameData : MonoBehaviour
     }
 }
 
-[Serializable]
-class PlayerData
-{
-    public SerializableObject[] buildingsOnSceneArray;
-    public int gold;
-    public int wood;
-}

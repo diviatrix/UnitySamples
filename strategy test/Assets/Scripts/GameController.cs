@@ -18,6 +18,7 @@ public struct SerializableObject
     public string name;
     public string prefabName;
     public Position position;
+    public Vector3 positionVector;
 }
 
 public class GameController : MonoBehaviour

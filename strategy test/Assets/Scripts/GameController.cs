@@ -295,7 +295,7 @@ public class GameController : MonoBehaviour
         foreach (Transform userCreatedObject in userCreatedObjects.transform)
         {
             Building buildingComponent = userCreatedObject.GetComponent<Building>();
-            SerializableObject saveData;
+            SerializableObject saveData = new SerializableObject();
             saveData.name = buildingComponent.buildingName;
             saveData.position.x = buildingComponent.transform.position.x;
             saveData.position.y = buildingComponent.transform.position.y;

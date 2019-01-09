@@ -4,6 +4,21 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+[System.Serializable]
+public struct Position 
+    {
+        public float x;
+        public float y;
+        public float z;
+    }
+
+[System.Serializable]
+public struct SerializableObject
+{
+    public string name;
+    public string prefabName;
+    public Position position;
+}
 
 public class GameController : MonoBehaviour
 {
@@ -11,7 +26,7 @@ public class GameController : MonoBehaviour
     public GameObject framePrefab;
     public GameObject buildFramePrefab;
     public List<GameObject> Buildings = new List<GameObject>(); // list of all building prefabs
-
+    public GameObject userCreatedObjects;
     public GameObject selectedGO;
 
     [Header("Game Settings")]
@@ -49,22 +64,36 @@ public class GameController : MonoBehaviour
 
     private void Start()
     {
+        userCreatedObjects = userCreatedObjectsGO();
+        CoreObjectsFindOnScene();
+        FillBuildPanel();
+        FillTopBar();
+        UpdateTopBar();
+        InstantiateFrame();
+        InstantiateBuildFrame();        
+    }
+    private void CoreObjectsFindOnScene()
+    {
         gameData = GameObject.Find("GameDataObject").GetComponent<GameData>();
         gameCamera = GameObject.Find("MainCamera");
         grid = FindObjectOfType<SnapGrid>();
         buildPanel = GameObject.Find("BuildPanel");
         actionPanel = GameObject.Find("ActionPanel");
         TopBar = GameObject.Find("TopBar");
-        FillBuildPanel();
-        FillTopBar();
-        UpdateTopBar();
-        InstantiateFrame();
-        InstantiateBuildFrame();       
+    }
+
+    private GameObject userCreatedObjectsGO()
+    {
+        GameObject go = new GameObject();
+        go.name = "userCreatedObjects";
+
+        return go;
     }
 
     public void SelectedDestroy()
     {
-        if (!selectedGO) return;
+        if (!selectedGO) return;        
+        gameData.buildingsOnScene.Remove(selectedGO.GetComponent<Building>().saveData);
         selectedGO.GetComponent<Building>().DestroyMe();
         ClearSelection();
     }
@@ -230,17 +259,18 @@ public class GameController : MonoBehaviour
     }
 
     // object placer
-    private void PlaceObjectNearPoint(Vector3 clickPoint, GameObject prefab)
+    private GameObject PlaceObjectNearPoint(Vector3 clickPoint, GameObject prefab)
     {
-        if (chosenPrefabToBuild != null)
-        {
-            var finalPlacingPosition = grid.GetNearestPointOnGrid(clickPoint);
-            GameObject go = GameObject.Instantiate(chosenPrefabToBuild);
-            go.transform.position = finalPlacingPosition;
-            Building bld = go.GetComponent<Building>();
-            go.name = bld.name;
-        }
+        var finalPlacingPosition = grid.GetNearestPointOnGrid(clickPoint);
+        GameObject go = GameObject.Instantiate(prefab, userCreatedObjects.transform);
+        go.transform.position = finalPlacingPosition;
+        Building bld = go.GetComponent<Building>();
+        go.name = bld.name;
+        return go;
+
     }
+
+    // fill ui build panel
     void FillBuildPanel()
     {
         GameObject[] buttons = GameObject.FindGameObjectsWithTag("_btn");
@@ -257,19 +287,48 @@ public class GameController : MonoBehaviour
             }
         }
     }
-    public void LoadSavedObjects()
+
+    public void SaveSceneObjects()
     {
-        List<SerializableObject> buildingsOnScene = gameData.buildingsOnScene;
-        
-        if(buildingsOnScene != null)
+        gameData.buildingsOnScene = new List<SerializableObject>();
+        foreach (Transform userCreatedObject in userCreatedObjects.transform)
         {
-            foreach(SerializableObject so in buildingsOnScene)
+            Building buildingComponent = userCreatedObject.GetComponent<Building>();
+            SerializableObject saveData;
+            saveData.name = buildingComponent.buildingName;
+            saveData.position.x = buildingComponent.transform.position.x;
+            saveData.position.y = buildingComponent.transform.position.y;
+            saveData.position.z = buildingComponent.transform.position.z;
+            saveData.prefabName = buildingComponent.buildingPrefab.name;
+            gameData.buildingsOnScene.Add(saveData);
+        }
+        gameData.SaveData();
+    }
+
+    void WipeUserObjectsOnScene()
+    {
+        if(userCreatedObjects != null)
+        {
+            Destroy(userCreatedObjects);
+        }
+        userCreatedObjects = userCreatedObjectsGO();
+    }
+
+    public void LoadSavedObjects()
+    {   
+        List<SerializableObject> buildingsOnScene = gameData.buildingsOnScene;
+        WipeUserObjectsOnScene();
+
+        if (buildingsOnScene != null)
+        {
+            foreach (SerializableObject so in buildingsOnScene)
             {
-                foreach(GameObject go in Buildings)
+                foreach (GameObject go in Buildings)
                 {
                     if (so.name == go.GetComponent<Building>().buildingName)
                     {
-                        Instantiate(go,new Vector3(so.position.x,so.position.y,so.position.z),Quaternion.identity);
+                        Vector3 newPosition = new Vector3(so.position.x, so.position.y, so.position.z);
+                        GameObject newGo = PlaceObjectNearPoint(newPosition, go);
                     }
                 }
             }

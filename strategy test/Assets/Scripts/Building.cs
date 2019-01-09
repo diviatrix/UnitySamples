@@ -3,22 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[System.Serializable]
-public struct Position
-    {
-        public float x;
-        public float y;
-        public float z;
-    }
-
-[System.Serializable]
-public struct SerializableObject
-{
-    public string name;
-    public string prefabName;
-    public Position position;
-}
-
 public class Building : ClickableObject
 {
     public SerializableObject saveData;    
@@ -54,7 +38,6 @@ public class Building : ClickableObject
         building.name = buildingName;    
         normalMat = building.GetComponentInChildren<Renderer>().material;
         GameDataObject = GameObject.Find("GameDataObject").GetComponent<GameData>();
-        pushToSave();
     }
 
     void AddCollider()
@@ -122,16 +105,5 @@ public class Building : ClickableObject
     void Update()
     {
         
-    }
-
-    void pushToSave()
-    {
-        
-        saveData.name = buildingName;
-        saveData.position.x = transform.position.x;
-        saveData.position.y = transform.position.y;
-        saveData.position.z = transform.position.z;
-        saveData.prefabName = buildingPrefab.name;
-        GameDataObject.buildingsOnScene.Add(saveData);
     }
 }

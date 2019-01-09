@@ -1052,6 +1052,7 @@ MonoBehaviour:
   - {fileID: 2022501067480847833, guid: 8974409ff811c2744bf607d7b6255ad4, type: 3}
   - {fileID: 3645339670013868280, guid: 5bed90c1366e4254fae25baa39b0b208, type: 3}
   - {fileID: 4946021854014606014, guid: 5e777efe4515bb74d80f5ca3562d4df1, type: 3}
+  userCreatedObjects: {fileID: 0}
   selectedGO: {fileID: 0}
   startGold: 0
   startWood: 100
@@ -1254,6 +1255,7 @@ MonoBehaviour:
   gold: 100
   wood: 100
   buildingsOnScene: []
+  buildingsOnSceneArray: []
 --- !u!4 &130235452
 Transform:
   m_ObjectHideFlags: 0
@@ -3068,8 +3070,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 130235451}
-        m_MethodName: SaveData
+      - m_Target: {fileID: 124308774}
+        m_MethodName: SaveSceneObjects
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

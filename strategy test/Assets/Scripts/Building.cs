@@ -27,21 +27,27 @@ public class Building : ClickableObject
         //popup.SetActive(true);
     }
     // Start is called before the first frame update
-    public void InitializeObject()
+    public void Initialize()
     {
         AddCollider();            
         PopupCreate();
         AddBg();
+
+        // Create GameObject
         building = InstantiateObject(buildingPrefab);
         building.name = buildingName;    
-        normalMat = building.GetComponentInChildren<Renderer>().material;
+
+        // push this building to GameData
         GameDataObject = GameObject.Find("GameDataObject").GetComponent<GameData>();
         GameDataObject.bldOnScene.Add(this);
     }
-
-    public void InitializeObjectFromSO(SerializableObject so)
+    
+    public void InitializeWithSO(SerializableObject so)
     {
- 
+        Initialize();
+        transform.position = JsonUtility.FromJson<Vector3>(so.position);
+        building.transform.rotation = JsonUtility.FromJson<Quaternion>(so.rotation);
+        Debug.Log(so.rotation);
     }
 
     void AddCollider()
@@ -109,7 +115,8 @@ public class Building : ClickableObject
         SerializableObject saveData; 
         saveData.name = buildingName;
         saveData.position = JsonUtility.ToJson(transform.position, true);
-        saveData.rotation = JsonUtility.ToJson(transform.rotation, true);
+        saveData.rotation = JsonUtility.ToJson(building.transform.rotation, true);
+        Debug.Log(transform.rotation);
         saveData.prefabName = buildingPrefab.name;
 
         return saveData;

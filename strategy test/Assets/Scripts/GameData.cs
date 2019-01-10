@@ -26,6 +26,9 @@ public class GameData : MonoBehaviour
     public int gold;
     public int wood;
     
+    [Header("Game stats")]
+    public List<GameObject> AvailableBsuildingss = new List<GameObject>();
+
     public List<Building> bldOnScene;    
 
     // data save to file
@@ -55,7 +58,7 @@ public class GameData : MonoBehaviour
             // trash with gamecontroller
             GameController gc = GameObject.Find("GameControllerObject").GetComponent<GameController>();
             
-            bldOnScene.Clear();
+            bldOnScene = new List<Building>();
             foreach (Transform child in gc.userCreatedObjects.transform)
             {
                 Destroy(child.gameObject);
@@ -64,13 +67,7 @@ public class GameData : MonoBehaviour
             foreach (string s in data.objectsData)
             {
                 SerializableObject so = JsonUtility.FromJson<SerializableObject>(s);
-
-                foreach(GameObject go in gc.Buildings)
-                {
-                    
-                }
-                //Debug.Log(s);
-                
+                gc.PlaceObjectfromSO(so);
             }
         }
     }

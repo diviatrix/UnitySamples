@@ -63,20 +63,9 @@ public class GameController : MonoBehaviour
         FillTopBar();
         UpdateTopBar();
         InstantiateFrame();
-        InstantiateBuildFrame();               
-    }    
-
-    private string Vector3ToJSON(Vector3 vector)
-    {
-        string data = JsonUtility.ToJson(vector, true);
-        return data;
+        InstantiateBuildFrame();
     }
 
-    private Vector3 Vector3FromJSON(string data)
-    {        
-        Vector3 vector = JsonUtility.FromJson<Vector3>(data);
-        return(vector);
-    }
     private void CoreObjectsFindOnScene()
     {
         gameData = GameObject.Find("GameDataObject").GetComponent<GameData>();
@@ -97,7 +86,7 @@ public class GameController : MonoBehaviour
 
     public void SelectedDestroy()
     {
-        if (!selectedGO) return;        
+        if (!selectedGO) return;
         gameData.bldOnScene.Remove(selectedGO.GetComponent<Building>());
         selectedGO.GetComponent<Building>().DestroyMe();
         ClearSelection();
@@ -158,7 +147,7 @@ public class GameController : MonoBehaviour
             if (CanBuildIt(chosenPrefabToBuild))
             {
                 UpdateTopBar();
-                PlaceObjectWithParams(chosenPrefabToBuild, point, Quaternion.identity, new SerializableObject());
+                PlaceObjectWithParams(chosenPrefabToBuild, point, Quaternion.identity);
             }
         }
 
@@ -183,6 +172,15 @@ public class GameController : MonoBehaviour
     {
         // #todo: add logic
         return true;
+    }
+
+    void InstantiateShitOnMap(GameObject shit)
+    {
+        foreach(Vector3 v in grid.allPointsOnMap)
+        {
+            int myRnd = Random.Range(0,5);
+            if (myRnd > 1) PlaceObjectWithParams(shit, v, Quaternion.identity);
+        }
     }
 
     void Update()
@@ -216,6 +214,11 @@ public class GameController : MonoBehaviour
         if (Input.GetMouseButtonDown(1)) // exit build mode or rmb #todo: rework this, dunno how
         {
             ExitBuildMode();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            InstantiateShitOnMap(Buildings[7]);
         }
     }
 
@@ -264,31 +267,34 @@ public class GameController : MonoBehaviour
     }
 
     // object placer
-    public GameObject PlaceObjectWithParams(GameObject prefab, Vector3 clickPoint, Quaternion rot)
+    public void PlaceObjectWithParams(GameObject prefab, Vector3 clickPoint, Quaternion rot)
     {
-        var finalPlacingPosition = grid.GetNearestPointOnGrid(clickPoint);
+        Vector3 finalPlacingPosition = grid.GetNearestPointOnGrid(clickPoint);
         GameObject go = GameObject.Instantiate(prefab, userCreatedObjects.transform);
         go.transform.position = finalPlacingPosition;
         Building bld = go.GetComponent<Building>();
-        bld.InitializeObject();
+        bld.Initialize();
         go.name = bld.name;
-        return go;
     }
 
-    public GameObject PlaceObjectfromSO(SerializableObject so)
+    public int SearchIdByNameIn(string str, List<GameObject> list)
     {
-        if (so.name == go.GetComponent<Building>().buildingName)
+        int id = 0;
+
+        for (int i = 0; i < list.Count; i++)
         {
-            Vector3 newpos = JsonUtility.FromJson<Vector3>(so.position);    
-            Quaternion newrot = JsonUtility.FromJson<Quaternion>(so.rotation); // #fix rotation, dont work 
-            gc.PlaceObjectNearPoint(go, newpos, newrot);                                         
+            if (str == list[i].GetComponent<Building>().buildingName)
+            {
+                id = i;
+            }
         }
-        GameObject go = GameObject.Instantiate(prefab, userCreatedObjects.transform);
-        go.transform.position = finalPlacingPosition;
-        Building bld = go.GetComponent<Building>();
-        bld.InitializeObjectFromSO(so);
-        go.name = bld.name;
-        return go;
+        return id;
+    }
+    public void PlaceObjectfromSO(SerializableObject so)
+    {
+        GameObject go = GameObject.Instantiate(Buildings[SearchIdByNameIn(so.name, Buildings)]);
+        go.transform.SetParent(userCreatedObjects.transform);
+        go.GetComponent<Building>().InitializeWithSO(so);
     }
 
     // fill ui build panel
@@ -307,5 +313,5 @@ public class GameController : MonoBehaviour
                 buttons[i].SetActive(false);
             }
         }
-    }    
+    }
 }

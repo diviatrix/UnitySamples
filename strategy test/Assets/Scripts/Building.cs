@@ -10,8 +10,8 @@ public class Building : ClickableObject
     public GameObject popupPrefab;
     public GameObject bgPrefab;
     public Sprite sprite;
-    public string buildingName;    
-  
+    public string buildingName;
+ 
     // privates
     private GameObject building,popup;
     private GameData GameDataObject;
@@ -27,7 +27,7 @@ public class Building : ClickableObject
         //popup.SetActive(true);
     }
     // Start is called before the first frame update
-    void Start()
+    public void InitializeObject()
     {
         AddCollider();            
         PopupCreate();
@@ -37,6 +37,11 @@ public class Building : ClickableObject
         normalMat = building.GetComponentInChildren<Renderer>().material;
         GameDataObject = GameObject.Find("GameDataObject").GetComponent<GameData>();
         GameDataObject.bldOnScene.Add(this);
+    }
+
+    public void InitializeObjectFromSO(SerializableObject so)
+    {
+ 
     }
 
     void AddCollider()
@@ -80,13 +85,13 @@ public class Building : ClickableObject
         popup_btns[0].GetChild(0).GetComponent<Text>().text = "Destroy";
 
         // Rotate Btn
-        popup_btns[1].GetComponent<Button>().onClick.AddListener(RotateMe);
+        popup_btns[1].GetComponent<Button>().onClick.AddListener(delegate{RotateMe(90);});
         popup_btns[1].GetChild(0).GetComponent<Text>().text = "Rotate";
     }
 
-    public void RotateMe()
+    public void RotateMe(float degree)
     {
-        building.transform.Rotate(building.transform.up,90);
+        building.transform.Rotate(Vector3.up,degree);
     }
     public void DestroyMe()
     {        
@@ -109,6 +114,8 @@ public class Building : ClickableObject
 
         return saveData;
     }
+
+    
 
     // Update is called once per frame
     void Update()

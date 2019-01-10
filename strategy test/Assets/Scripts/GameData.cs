@@ -67,12 +67,7 @@ public class GameData : MonoBehaviour
 
                 foreach(GameObject go in gc.Buildings)
                 {
-                    if (so.name == go.GetComponent<Building>().buildingName)
-                    {
-                        Vector3 newpos = JsonUtility.FromJson<Vector3>(so.position);    
-                        Quaternion newrot = JsonUtility.FromJson<Quaternion>(so.rotation); // #fix rotation, dont work 
-                        gc.PlaceObjectNearPoint(go, newpos, newrot);                                         
-                    }
+                    
                 }
                 //Debug.Log(s);
                 

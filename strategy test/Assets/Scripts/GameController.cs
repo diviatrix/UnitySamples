@@ -105,7 +105,7 @@ public class GameController : MonoBehaviour
     public void SelectedRotate()
     {
         if (!selectedGO) return;
-        selectedGO.GetComponent<Building>().RotateMe();
+        selectedGO.GetComponent<Building>().RotateMe(90);
     }
 
     void EnterBuildMode()
@@ -158,7 +158,7 @@ public class GameController : MonoBehaviour
             if (CanBuildIt(chosenPrefabToBuild))
             {
                 UpdateTopBar();
-                PlaceObjectNearPoint(chosenPrefabToBuild, point, Quaternion.identity);
+                PlaceObjectWithParams(chosenPrefabToBuild, point, Quaternion.identity, new SerializableObject());
             }
         }
 
@@ -264,13 +264,29 @@ public class GameController : MonoBehaviour
     }
 
     // object placer
-    public GameObject PlaceObjectNearPoint(GameObject prefab, Vector3 clickPoint, Quaternion rot)
+    public GameObject PlaceObjectWithParams(GameObject prefab, Vector3 clickPoint, Quaternion rot)
     {
         var finalPlacingPosition = grid.GetNearestPointOnGrid(clickPoint);
         GameObject go = GameObject.Instantiate(prefab, userCreatedObjects.transform);
         go.transform.position = finalPlacingPosition;
-        go.transform.rotation = rot;
         Building bld = go.GetComponent<Building>();
+        bld.InitializeObject();
+        go.name = bld.name;
+        return go;
+    }
+
+    public GameObject PlaceObjectfromSO(SerializableObject so)
+    {
+        if (so.name == go.GetComponent<Building>().buildingName)
+        {
+            Vector3 newpos = JsonUtility.FromJson<Vector3>(so.position);    
+            Quaternion newrot = JsonUtility.FromJson<Quaternion>(so.rotation); // #fix rotation, dont work 
+            gc.PlaceObjectNearPoint(go, newpos, newrot);                                         
+        }
+        GameObject go = GameObject.Instantiate(prefab, userCreatedObjects.transform);
+        go.transform.position = finalPlacingPosition;
+        Building bld = go.GetComponent<Building>();
+        bld.InitializeObjectFromSO(so);
         go.name = bld.name;
         return go;
     }

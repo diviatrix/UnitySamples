@@ -57,12 +57,8 @@ public class GameData : MonoBehaviour
             
             // trash with gamecontroller
             GameController gc = GameObject.Find("GameControllerObject").GetComponent<GameController>();
-            
-            bldOnScene = new List<Building>();
-            foreach (Transform child in gc.userCreatedObjects.transform)
-            {
-                Destroy(child.gameObject);
-            }
+
+			gc.WipeScene();
 
             foreach (string s in data.objectsData)
             {
@@ -71,10 +67,10 @@ public class GameData : MonoBehaviour
             }
         }
     }
+
     public void LoadGame()
     {
-        LoadData();
-        
+        LoadData();        
     }
 
     public void SaveGame()

@@ -5,7 +5,9 @@ using UnityEngine;
 public class updown_animation : MonoBehaviour
 {
     public float minHeight;
-    public float maxHeight;    
+    public float maxHeight;   
+    public float minScale;
+    public float maxScale; 
     public float speed;
     static float t = 0.0f;
 
@@ -21,6 +23,7 @@ public class updown_animation : MonoBehaviour
         
         // animate the position of the game object...
         transform.position = new Vector3(transform.parent.position.x, Mathf.Lerp(minHeight, maxHeight, t), transform.parent.position.z);
+        transform.localScale = new Vector3(Mathf.Lerp(maxScale,minScale, t), Mathf.Lerp(maxScale,minScale, t), Mathf.Lerp( maxScale,minScale, t));
 
         // .. and increase the t interpolater
         t += 0.5f * Time.deltaTime * speed;
@@ -33,6 +36,10 @@ public class updown_animation : MonoBehaviour
             float temp = maxHeight;
             maxHeight = minHeight;
             minHeight = temp;
+
+            float temp2 = maxScale;
+            maxScale = minScale;
+            minScale = temp2;
             t = 0.0f;
         }
     }

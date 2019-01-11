@@ -8,7 +8,9 @@ public class CameraController : MonoBehaviour
 {
     [Header("Camera Settings")]
     public float zoomSpeed; // camera zoom speed
+    public float touchZoomSpeed; // 
     public float camSpeed; // camera move speed
+    public float touchSpeed; // 
     public float rotSpeed; // camera move speed
     public float zLimit; // vertical camera limit
 
@@ -66,13 +68,50 @@ public class CameraController : MonoBehaviour
                 cameraComponent.orthographic = true;
                 isOrtho = true;
             }
-        }        
+        }    
 
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            // Move the cube if the screen has the finger moving.
+            if (touch.phase == TouchPhase.Moved && Input.touchCount == 1)
+            {
+                playerTransform.position -= playerTransform.right * touch.deltaPosition.x * touchSpeed;
+                playerTransform.position -= playerTransform.forward * touch.deltaPosition.y * touchSpeed;
+            }
+
+            else if (Input.touchCount == 2)
+            {
+                // Store both touches.
+                Touch touchOne = Input.GetTouch(1);
+
+                // Find the position in the previous frame of each touch.
+                Vector2 touchZeroPrevPos = touch.position - touch.deltaPosition;
+                Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+
+                // Find the magnitude of the vector (the distance) between the touches in each frame.
+                float prevTouchDeltaMag = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+                float touchDeltaMag = (touch.position - touchOne.position).magnitude;
+
+                // Find the difference in the distances between each frame.
+                float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
+
+                
+                   // ... change the orthographic size based on the change in distance between the touches.
+                cameraComponent.orthographicSize += deltaMagnitudeDiff * touchZoomSpeed;
+
+                    // Make sure the orthographic size never drops below zero.
+                cameraComponent.orthographicSize = Mathf.Max(cameraComponent.orthographicSize, 0.1f);
+            }  
+        }
         // camera rot
         if (Input.GetMouseButton(1))
         {
+            if (Application.platform == RuntimePlatform.Android) return;
             CameraRotationHandler();
-        }        
+        }    
+            
 
         // camera dnd
         if (Input.GetMouseButton(2))

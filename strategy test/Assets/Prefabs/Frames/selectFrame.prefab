@@ -93,7 +93,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minHeight: 0
   maxHeight: 0.2
-  speed: 1
+  minScale: 1
+  maxScale: 1.05
+  speed: 5
 --- !u!1 &6765917990084164874
 GameObject:
   m_ObjectHideFlags: 0

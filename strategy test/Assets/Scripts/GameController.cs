@@ -66,12 +66,24 @@ public class GameController : MonoBehaviour
         InstantiateBuildFrame();
     }
 
+    private bool IsPointerOverUIObject() {
+         PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+         eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        return results.Count > 0;
+ }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+    }
+
     private void CoreObjectsFindOnScene()
     {
         gameData = GameObject.Find("GameDataObject").GetComponent<GameData>();
         gameCamera = GameObject.Find("MainCamera");
         grid = FindObjectOfType<SnapGrid>();
-        buildPanel = GameObject.Find("BuildPanel");
         actionPanel = GameObject.Find("ActionPanel");
         TopBar = GameObject.Find("TopBar");
     }
@@ -97,9 +109,10 @@ public class GameController : MonoBehaviour
         selectedGO.GetComponent<Building>().RotateMe(90);
     }
 
-    void EnterBuildMode()
+    public void EnterBuildMode()
     {
         buildFrameObject.SetActive(true);
+        ClearSelection();
     }
 
     public void ExitBuildMode()
@@ -114,7 +127,7 @@ public class GameController : MonoBehaviour
         buildingSelectionFrameObject.SetActive(true);
     }
 
-    void DisableFrame()
+    void DisableSelectionFrame()
     {
         buildingSelectionFrameObject.SetActive(false);
     }
@@ -178,8 +191,8 @@ public class GameController : MonoBehaviour
     {
         foreach(Vector3 v in grid.allPointsOnMap)
         {
-            int myRnd = Random.Range(0,5);
-            if (myRnd > 1) PlaceObjectWithParams(shit, v, Quaternion.identity);
+            int myRnd = Random.Range(0,10);
+            if (myRnd > 7) PlaceObjectWithParams(shit, v, Quaternion.identity);
         }
     }
 
@@ -202,14 +215,15 @@ public class GameController : MonoBehaviour
         }
 
         // click on objects
-        if (!EventSystem.current.IsPointerOverGameObject()) // if not over ui
+        if (!IsPointerOverUIObject()) // if not over ui
         {
+
             Transform go = hit.transform;
             if (Input.GetMouseButtonDown(0))
             {
-                HandleObjectsInteraction(go.gameObject, hit.point);
+                if(go != null) HandleObjectsInteraction(go.gameObject, hit.point);
             }
-        }
+        }        
 
         if (Input.GetMouseButtonDown(1)) // exit build mode or rmb #todo: rework this, dunno how
         {
@@ -218,13 +232,17 @@ public class GameController : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.F))
         {
-            InstantiateShitOnMap(Buildings[7]);
+            GenerateForest();
         }
+    }
+    public void GenerateForest()
+    {
+        InstantiateShitOnMap(Buildings[7]);
     }
 
     void ClearSelection() // clear unit selection
     {
-        DisableFrame();
+        DisableSelectionFrame();
         selectedGO = null;
         ShowActionPanel(false);
     }
@@ -247,7 +265,16 @@ public class GameController : MonoBehaviour
         chosenPrefabToBuild = Buildings[id];
     }
 
-    void UpdateTopBar()
+	public void WipeScene()
+	{
+		gameData.bldOnScene = new List<Building>();
+		foreach (Transform child in userCreatedObjects.transform)
+		{
+			Destroy(child.gameObject);
+		}
+	}
+
+	void UpdateTopBar()
     {
         TopBarBtns[0].GetComponentInChildren<Text>().text = "Gold\n" + _gold;
         TopBarBtns[1].GetComponentInChildren<Text>().text = "Wood\n" + _wood;
@@ -300,18 +327,36 @@ public class GameController : MonoBehaviour
     // fill ui build panel
     void FillBuildPanel()
     {
-        GameObject[] buttons = GameObject.FindGameObjectsWithTag("_btn");
-        for (int i = 0; i < buttons.Length; i++)
+        buildPanel = GameObject.Find("BuildPanel");
+
+        GameObject button = GameObject.Find("BuildButton");
+
+        for (int i = 0; i < Buildings.Count; i++)
         {
-            if (i < Buildings.Count)
+            GameObject newbtn = GameObject.Instantiate(button);
+            newbtn.transform.SetParent(buildPanel.transform);
+            newbtn.GetComponentInChildren<Text>().text = Buildings[i].GetComponent<Building>().buildingName;
+            newbtn.GetComponent<SetActiveBuilding>().id = i;
+            newbtn.GetComponent<SetActiveBuilding>().gc = this;
+            if (Buildings[i].GetComponent<Building>().sprite != null)
             {
-                //buttons[i].GetComponent<Image>().sprite = Buildings[i].GetComponent<Building>().sprite;
-                buttons[i].GetComponentInChildren<Text>().text = Buildings[i].GetComponent<Building>().buildingName;
-            }
-            else
-            {
-                buttons[i].SetActive(false);
+                newbtn.GetComponent<Image>().sprite = Buildings[i].GetComponent<Building>().sprite;
             }
         }
+        button.SetActive(false);
+
+        //GameObject[] buttons = GameObject.FindGameObjectsWithTag("_btn");
+        //for (int i = 0; i < buttons.Length; i++)
+        //{
+        //    if (i < Buildings.Count)
+        //    {
+        //        //buttons[i]. = 
+        //        buttons[i].GetComponentInChildren<Text>().text = Buildings[i].GetComponent<Building>().buildingName;
+        //    }
+        //    else
+        //    {
+        //        buttons[i].SetActive(false);
+        //    }
+        //}
     }
 }

@@ -20,10 +20,10 @@ public class Building : ClickableObject
     // handle when click on this object
     public override void OnClick()
     {
-        if (popup.activeSelf == true)
-        {
-            return;
-        }
+        //if (popup.activeSelf == true)
+        //{
+        //    return;
+        //}
         //popup.SetActive(true);
     }
     // Start is called before the first frame update
@@ -47,7 +47,6 @@ public class Building : ClickableObject
         Initialize();
         transform.position = JsonUtility.FromJson<Vector3>(so.position);
         building.transform.rotation = JsonUtility.FromJson<Quaternion>(so.rotation);
-        Debug.Log(so.rotation);
     }
 
     void AddCollider()
@@ -116,7 +115,6 @@ public class Building : ClickableObject
         saveData.name = buildingName;
         saveData.position = JsonUtility.ToJson(transform.position, true);
         saveData.rotation = JsonUtility.ToJson(building.transform.rotation, true);
-        Debug.Log(transform.rotation);
         saveData.prefabName = buildingPrefab.name;
 
         return saveData;

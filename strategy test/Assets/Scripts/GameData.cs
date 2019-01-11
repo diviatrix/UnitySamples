@@ -27,7 +27,7 @@ public class GameData : MonoBehaviour
     public int wood;
     
     [Header("Game stats")]
-    public List<GameObject> AvailableBsuildingss = new List<GameObject>();
+    public List<GameObject> AvailableBsuildings = new List<GameObject>();
 
     public List<Building> bldOnScene;    
 
@@ -43,7 +43,7 @@ public class GameData : MonoBehaviour
         file.Close();
     }
 
-    public void LoadData()
+    void LoadData()
     {
         if(File.Exists(Application.persistentDataPath + "/playerInfo.dat"))
         {
@@ -92,30 +92,6 @@ public class GameData : MonoBehaviour
         data.wood = wood;
 
         SaveData(data);
-    }
-
-    public void RemoveBldFromData()
-    {
-
-    }
-
-    // Start is called before the first frame update
-    
-    private void Awake() 
-    {
-       if (!gameData)
-       {
-           DontDestroyOnLoad(gameObject);
-           gameData = this;
-       } 
-       else if (gameData == this)
-       {
-           Destroy(gameObject);
-       }
-    }
-
-    private void OnGUI() {
-        GUI.Label(new Rect(10,10,100,30), "Gold: " + gold);
     }
 }
 

@@ -49,6 +49,7 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         // camera ortho switch
         // dunno why i need this
         if (Input.GetKeyDown(KeyCode.Space))
@@ -70,8 +71,11 @@ public class CameraController : MonoBehaviour
             }
         }    
 
+        // touch controls
+        
         if (Input.touchCount > 0)
         {
+
             Touch touch = Input.GetTouch(0);
 
             // Move the cube if the screen has the finger moving.
@@ -105,21 +109,27 @@ public class CameraController : MonoBehaviour
                 cameraComponent.orthographicSize = Mathf.Max(cameraComponent.orthographicSize, 0.1f);
             }  
         }
-        // camera rot
-        if (Input.GetMouseButton(1))
-        {
-            if (Application.platform == RuntimePlatform.Android) return;
-            CameraRotationHandler();
-        }    
-            
 
-        // camera dnd
-        if (Input.GetMouseButton(2))
-        {
-            CameraMovementHandler();
-        }
+        // mouse control
 
-        CameraZoomHandler();
+        if (!Application.isMobilePlatform)
+        {
+            // camera rot
+            if (Input.GetMouseButton(1))
+            {
+                if (Application.platform == RuntimePlatform.Android) return;
+                CameraRotationHandler();
+            }    
+                
+
+            // camera dnd
+            if (Input.GetMouseButton(2))
+            {
+                CameraMovementHandler();
+            }
+
+            CameraZoomHandler();
+        }            
     }
 
     void CameraRotationHandler()

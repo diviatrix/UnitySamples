@@ -54,9 +54,12 @@ public class GameController : MonoBehaviour
     private GameObject actionPanel; // GUI panel with selected object actions
     private List<Transform> TopBarBtns = new List<Transform>(); // list with buttons, will fill in code
     private GameObject TopBar; // link for top ui bar  
+    private bool isMobile; // check if mobile or pc
+    private float touchDuration;
 
     private void Start()
     {
+        isMobile = Application.isMobilePlatform;
         userCreatedObjects = userCreatedObjectsGO();
         CoreObjectsFindOnScene();
         FillBuildPanel();
@@ -66,13 +69,14 @@ public class GameController : MonoBehaviour
         InstantiateBuildFrame();
     }
 
-    private bool IsPointerOverUIObject() {
-         PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
-         eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+    private bool IsPointerOverUIObject()
+    {
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
         List<RaycastResult> results = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
         return results.Count > 0;
- }
+    }
 
     public void ExitGame()
     {
@@ -189,9 +193,9 @@ public class GameController : MonoBehaviour
 
     void InstantiateShitOnMap(GameObject shit)
     {
-        foreach(Vector3 v in grid.allPointsOnMap)
+        foreach (Vector3 v in grid.allPointsOnMap)
         {
-            int myRnd = Random.Range(0,10);
+            int myRnd = Random.Range(0, 10);
             if (myRnd > 7) PlaceObjectWithParams(shit, v, Quaternion.identity);
         }
     }
@@ -214,25 +218,49 @@ public class GameController : MonoBehaviour
             }
         }
 
-        // click on objects
-        if (!IsPointerOverUIObject()) // if not over ui
+        if (isMobile)
         {
-
-            Transform go = hit.transform;
-            if (Input.GetMouseButtonDown(0))
+            if (Input.touchCount > 0)
             {
-                if(go != null) HandleObjectsInteraction(go.gameObject, hit.point);
+
+                Touch touch = Input.GetTouch(0);
+
+                touchDuration += Time.deltaTime;
+   
+                if(touch.phase == TouchPhase.Ended && touchDuration < 0.2f) //making sure it only check the touch once && it was a short touch/tap and not a dragging.
+                {
+                    if (!IsPointerOverUIObject()) // if not over ui
+                    {
+                        Transform go = hit.transform;
+                        if (go != null) HandleObjectsInteraction(go.gameObject, hit.point);
+                    }
+                }
+                else
+                touchDuration = 0.0f;
             }
-        }        
-
-        if (Input.GetMouseButtonDown(1)) // exit build mode or rmb #todo: rework this, dunno how
-        {
-            ExitBuildMode();
         }
-
-        if (Input.GetKeyDown(KeyCode.F))
+        else
         {
-            GenerateForest();
+            // click on objects
+            if (!IsPointerOverUIObject()) // if not over ui
+            {
+
+                Transform go = hit.transform;
+                if (Input.GetMouseButtonDown(0))
+                {
+                    if (go != null) HandleObjectsInteraction(go.gameObject, hit.point);
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.F))
+            {
+                GenerateForest();
+            }
+
+            if (Input.GetMouseButtonDown(1)) // exit build mode or rmb #todo: rework this, dunno how
+            {
+                ExitBuildMode();
+            }
         }
     }
     public void GenerateForest()
@@ -265,16 +293,16 @@ public class GameController : MonoBehaviour
         chosenPrefabToBuild = Buildings[id];
     }
 
-	public void WipeScene()
-	{
-		gameData.bldOnScene = new List<Building>();
-		foreach (Transform child in userCreatedObjects.transform)
-		{
-			Destroy(child.gameObject);
-		}
-	}
+    public void WipeScene()
+    {
+        gameData.bldOnScene = new List<Building>();
+        foreach (Transform child in userCreatedObjects.transform)
+        {
+            Destroy(child.gameObject);
+        }
+    }
 
-	void UpdateTopBar()
+    void UpdateTopBar()
     {
         TopBarBtns[0].GetComponentInChildren<Text>().text = "Gold\n" + _gold;
         TopBarBtns[1].GetComponentInChildren<Text>().text = "Wood\n" + _wood;

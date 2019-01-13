@@ -23,12 +23,21 @@ public class PlaceableObject : ClickableObject
     [Header("Prefab settings")]
     public ObjectType type;
     public GameObject prefab;
-    public GameObject popupPrefab;
     public GameObject bgPrefab;
+
+    [Header("Effect settings")]
+    public GameObject destroyEffect;
+    public GameObject buildEffect;
     public Sprite sprite;
+
+    [Header("object settings")]
     public string buildingName;
     public string description;
+    public bool canBuild;
+    public bool canSell;
+    public bool canHarvest;
     public Resources cost;
+
     
     [Header("Debug publics")]
     public GameData gameData; 
@@ -41,42 +50,39 @@ public class PlaceableObject : ClickableObject
     // handle when click on this object
     public override void OnClick()
     {
-        if (popup.activeSelf == true)
-        {
-            return;
-        }
+        if(popup == null){return;}
+        if(popup.activeSelf == true){return;}
+
         popup.SetActive(true);
     }
     // Start is called before the first frame update
     public void Initialize()
     {
         AddCollider();            
-        PopupCreate();
         AddBg();
 
         // Create GameObject
         building = InstantiateObject(prefab);
         building.name = buildingName;    
 
-        if (type == ObjectType.Building)
+        transform.SetParent(gameData.generatedObjectsGO.transform);
+        gameData.generatedObjects.Add(this);
+        
+        if (buildEffect != null)
         {
-            transform.SetParent(gameData.userCreatedObjectsGO.transform);
-            gameData.userCreatedObjects.Add(this);
-        } 
-        if (type == ObjectType.Object)
-        {
-            transform.SetParent(gameData.generatedObjectsGO.transform);
-            gameData.generatedObjects.Add(this);
-         }
+            GameObject.Instantiate(buildEffect,transform);
+        }
+        
+
         // push this building to GameData
         gameData.GetComponent<Notification>().text.text = "Placed "+ buildingName;
         
     }
     
     public void InitializeWithSO(SerializableObject so)
-    {
-        Initialize();
-        transform.position = JsonUtility.FromJson<Vector3>(so.position);
+    {      
+        Initialize();  
+        transform.position = JsonUtility.FromJson<Vector3>(so.position);        
         building.transform.rotation = JsonUtility.FromJson<Quaternion>(so.rotation);
     }
 
@@ -96,52 +102,25 @@ public class PlaceableObject : ClickableObject
         bg.transform.SetParent(transform);        
     }
 
-    void PopupCreate()
-    {
-        if (!popupPrefab)
-        {
-            return;
-        }
-        popup = InstantiateObject(popupPrefab);
-        RectTransform popup_rt = popup.GetComponent<RectTransform>();
-        popup_rt.localPosition = new Vector3(0,2,0);
-        popup_rt.Rotate(new Vector3(45,-45,0));
-        //popup_rt.Rotate(transform.up,-45);
-        popup.SetActive(false);
-        List<Transform> popup_btns = new List<Transform>();
-
-        // find buttons in panel (this is really shitty)
-        Transform btn_panel = popup.transform.Find("btn_panel");
-        foreach (Transform child in btn_panel){
-            popup_btns.Add(child);
-        }
-
-        // add funcs to them
-        // Destroy btn
-        popup_btns[0].GetComponent<Button>().onClick.AddListener(DestroyMe);
-        popup_btns[0].GetChild(0).GetComponent<Text>().text = "Destroy";
-
-        // Rotate Btn
-        popup_btns[1].GetComponent<Button>().onClick.AddListener(delegate{RotateMe(90);});
-        popup_btns[1].GetChild(0).GetComponent<Text>().text = "Rotate";
-    }
-
     public void RotateMe(float degree)
     {
         building.transform.Rotate(Vector3.up,degree);
     }
+
+    public void Sell()
+    {
+        if (!canSell) {return;}
+        gameData.resources = gameData.resources + cost; 
+        DestroyMe();
+    }
     public void DestroyMe()
     {        
-        if (type == ObjectType.Building)
-        {
-            gameData.userCreatedObjects.Remove(this);
-        }
-        if (type == ObjectType.Object)
-        {
-            gameData.generatedObjects.Remove(this);
-        }
-        gameData.resources = gameData.resources + cost; 
+        gameData.generatedObjects.Remove(this);        
         gameData.GetComponent<Notification>().text.text = "Destroyed "+ buildingName;
+        if (destroyEffect != null)
+        {
+            GameObject.Instantiate(destroyEffect,transform.position,Quaternion.identity);
+        }
         Destroy(gameObject);
     }
 
@@ -160,9 +139,7 @@ public class PlaceableObject : ClickableObject
         saveData.prefabName = prefab.name;
         saveData.type = type;
         
-        print (saveData);
-        return saveData;
-        
+        return saveData;        
     }    
 
     // Update is called once per frame

@@ -4,17 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-[System.Serializable]
-public struct BuildingActionPanel
-{
-    public GameObject panel;
-    public Image image;
-    public Text nameText;
-    public Text descriptionText;
-    public Text costText;
-    public Button button;
-}
-
 public class GameController : MonoBehaviour
 {
     [Header("Object bindings")]
@@ -23,8 +12,8 @@ public class GameController : MonoBehaviour
     public GameObject buildFramePrefab;
     
     [Header("UI Object bindings")]
-    public BuildingActionPanel buildingActionPanel = new BuildingActionPanel();
-    public GameObject actionPanel; // GUI panel with selected object actions
+    
+    public GameObject selectionActionPanel; // GUI panel with selected object actions
     public GameObject buildPanel;
     public GameObject button;
      
@@ -81,8 +70,23 @@ public class GameController : MonoBehaviour
         PlaceableObject bld = selectedGO.GetComponent<PlaceableObject>();
                 
         bld.DestroyMe();
-        ClearSelection();
-        
+        ClearSelection();        
+    }
+    public void SelectedSell()
+    {
+        if (!selectedGO) return;
+        PlaceableObject bld = selectedGO.GetComponent<PlaceableObject>();
+        if (bld.canSell)
+        {
+            bld.Sell();
+            ClearSelection();
+            GetComponent<Notification>().text.text = "Sold " + bld.buildingName;
+        } 
+        else
+        {
+            GetComponent<Notification>().text.text = bld.buildingName + " is not sellable" ;
+        }
+                
     }
     public void SelectedRotate()
     {
@@ -93,62 +97,12 @@ public class GameController : MonoBehaviour
     public void EnterBuildMode()
     {
         ClearSelection();
-        
-        PlaceableObject buildingComponent =  chosenPrefabToBuild.GetComponent<PlaceableObject>();
-        buildingActionPanel.panel.SetActive(true);
-        buildingActionPanel.image.sprite = buildingComponent.sprite;
-        buildingActionPanel.nameText.text = buildingComponent.buildingName;
-        buildingActionPanel.descriptionText.text =  buildingComponent.description;
-        
-        string costText = "Cost: \n";        
-        if (buildingComponent.cost.copper != 0) 
-        {
-            string t = "<color=#ffa500ff>Copper:</color>";
-            if (buildingComponent.cost.copper > gameData.resources.copper)
-            {t += "<color=#ff0000ff>"+ buildingComponent.cost.copper.ToString() +"</color>" + "\n";}
-            else {t+=buildingComponent.cost.copper.ToString()+ "\n";}
-            costText +=  t;
-        }
-        if (buildingComponent.cost.food != 0) 
-        {
-            string t = "<color=#008000ff>Food:</color>";
-            if (buildingComponent.cost.food > gameData.resources.food)
-            {t += "<color=#ff0000ff>"+ buildingComponent.cost.food.ToString() +"</color>" + "\n";}
-            else {t+=buildingComponent.cost.food.ToString()+ "\n";}
-            costText +=  t;
-        }
-        if (buildingComponent.cost.gold != 0) 
-        {
-            string t = "<color=#ffff00ff>Gold:</color>";
-            if (buildingComponent.cost.gold > gameData.resources.gold)
-            {t += "<color=#ff0000ff>"+ buildingComponent.cost.gold.ToString() +"</color>" + "\n";}
-            else {t+=buildingComponent.cost.gold.ToString()+ "\n";}
-            costText +=  t;
-            
-        }
-        if (buildingComponent.cost.stone != 0) 
-        {
-            string t = "<color=#808080ff>Stone:</color>";
-            if (buildingComponent.cost.stone > gameData.resources.stone)
-            {t += "<color=#ff0000ff>"+ buildingComponent.cost.stone.ToString() +"</color>" + "\n";}
-            else {t+=buildingComponent.cost.stone.ToString()+ "\n";}
-            costText +=  t;
-        }
-        if (buildingComponent.cost.wood != 0) 
-        {
-            string t = "<color=#a52a2aff>Wood:</color>";
-            if (buildingComponent.cost.wood > gameData.resources.wood)
-            {t += "<color=#ff0000ff>"+ buildingComponent.cost.wood.ToString() +"</color>" + "\n";}
-            else {t+=buildingComponent.cost.wood.ToString()+ "\n";}
-            costText +=  t;       
-        }
-        buildingActionPanel.costText.text = costText;
-        
+        GetComponent<BuildActionPanelController>().EnterBuildMode(chosenPrefabToBuild.GetComponent<PlaceableObject>());   
     }
 
     public void ExitBuildMode()
     {
-        buildingActionPanel.panel.SetActive(false);
+        GetComponent<BuildActionPanelController>().Disable();
         chosenPrefabToBuild = null; // clear building prefab
         buildFrameObject.SetActive(false);
     }
@@ -165,7 +119,7 @@ public class GameController : MonoBehaviour
 
     void ShowActionPanel(bool show)
     {
-        actionPanel.SetActive(show);
+        selectionActionPanel.SetActive(show);
     }
 
     public void HandleObjectsInteraction(GameObject clickedGo, Vector3 point)
@@ -187,7 +141,7 @@ public class GameController : MonoBehaviour
             if (CanBuildIt(chosenPrefabToBuild.GetComponent<PlaceableObject>()))
             {
                 gameData.resources = gameData.resources - chosenPrefabToBuild.GetComponent<PlaceableObject>().cost;
-                PlaceObjectWithParams(chosenPrefabToBuild, point, Quaternion.identity,ObjectType.Building);
+                PlaceObjectWithParams(chosenPrefabToBuild, point, Quaternion.identity);
             }
             EnterBuildMode();
         }
@@ -212,17 +166,8 @@ public class GameController : MonoBehaviour
     public bool CanBuildIt(PlaceableObject bld)
     {
         bool can = false;
-        if 
-        (
-            bld.cost.citizen <= gameData.resources.citizen &&
-            bld.cost.copper <= gameData.resources.copper &&
-            bld.cost.food <= gameData.resources.food &&
-            bld.cost.gold <= gameData.resources.gold &&
-            bld.cost.stone <= gameData.resources.stone &&
-            bld.cost.wood <= gameData.resources.wood
-        )
-        //Debug.Log("weoweo");
 
+        // need fix
         if (bld.cost <= gameData.resources)
         {
             can = true;
@@ -321,23 +266,7 @@ public class GameController : MonoBehaviour
     public void GenerateForest()
     {
         WipeScene();
-        
-        GameObject tree = gameData.availableObjects[0];
-        GameObject ore = gameData.availableObjects[1];
-        GameObject ore2 = gameData.availableObjects[2];
-        GameObject stone = gameData.availableObjects[3];
-
-
-        foreach (Vector3 v in grid.allPointsOnMap)
-        {
-            int myRnd = Random.Range(0, 100);
-            if (myRnd >= 70) PlaceObjectWithParams(tree, v, Quaternion.identity,ObjectType.Object);
-            else if (myRnd == 1) PlaceObjectWithParams(ore, v, Quaternion.identity,ObjectType.Object);
-            else if (myRnd == 2) PlaceObjectWithParams(ore2, v, Quaternion.identity,ObjectType.Object);
-            else if (myRnd == 4) PlaceObjectWithParams(stone, v, Quaternion.identity,ObjectType.Object);
-        }
-
-        GetComponent<Notification>().SetNotification("Location Generated");
+        GetComponent<FieldGenerator>().Generate();        
     }
 
     void ClearSelection() // clear unit selection
@@ -361,14 +290,14 @@ public class GameController : MonoBehaviour
 
     public void ChangeActiveBuildingTo(int id)
     {
-        chosenPrefabToBuild = gameData.availableBuildings[id];
+        chosenPrefabToBuild = gameData.availableObjects[id];
         EnterBuildMode();        
     }
 
     public void WipeScene()
     {
-        gameData.userCreatedObjects = new List<PlaceableObject>();
-        foreach (Transform child in gameData.userCreatedObjectsGO.transform)
+        gameData.generatedObjects = new List<PlaceableObject>();
+        foreach (Transform child in gameData.generatedObjectsGO.transform)
         {
             Destroy(child.gameObject);
         }
@@ -380,13 +309,12 @@ public class GameController : MonoBehaviour
     }
  
     // object placer
-    public void PlaceObjectWithParams(GameObject prefab, Vector3 clickPoint, Quaternion rot, ObjectType type)
+    public void PlaceObjectWithParams(GameObject prefab, Vector3 clickPoint, Quaternion rot)
     {
         Vector3 position = grid.GetNearestPointOnGrid(clickPoint);
         GameObject go = GameObject.Instantiate(prefab);
         PlaceableObject bld = go.GetComponent<PlaceableObject>();
         bld.gameData = gameData;
-        bld.type = type;
         bld.Initialize();
 
         go.name = bld.name;
@@ -406,38 +334,37 @@ public class GameController : MonoBehaviour
         }
         return id;
     }
-    public void PlaceBuildingfromSO(SerializableObject so)
-    {
-        GameObject go = GameObject.Instantiate(gameData.availableBuildings[SearchIdByNameIn(so.name, gameData.availableBuildings)]);
-        PlaceableObject building = go.GetComponent<PlaceableObject>();
-        building.gameData = gameData;
-        building.type = ObjectType.Building;
-        building.InitializeWithSO(so);
-    }
+
     public void PlaceObjectfromSO(SerializableObject so)
     {
         GameObject go = GameObject.Instantiate(gameData.availableObjects[SearchIdByNameIn(so.name, gameData.availableObjects)]);
         PlaceableObject building = go.GetComponent<PlaceableObject>();
         building.gameData = gameData;
-        building.type = ObjectType.Object;
+        building.type = so.type;
         building.InitializeWithSO(so);
     }
 
     // fill ui build panel
     void FillBuildPanel()
     {
-        for (int i = 0; i < gameData.availableBuildings.Count; i++)
+        for (int i = 0; i < gameData.availableObjects.Count; i++)
         {
+            // dont add button if marked as cant build
+            if (!gameData.availableObjects[i].GetComponent<PlaceableObject>().canBuild){continue;}
+
             GameObject newbtn = GameObject.Instantiate(button,buildPanel.transform);
-            newbtn.GetComponentInChildren<Text>().text = gameData.availableBuildings[i].GetComponent<PlaceableObject>().buildingName;
-            newbtn.GetComponent<SetActiveBuilding>().id = i;
-            newbtn.GetComponent<SetActiveBuilding>().gc = this;
-            newbtn.GetComponent<SetActiveBuilding>().gameData = gameData;
-            if (gameData.availableBuildings[i].GetComponent<PlaceableObject>().sprite != null)
+            newbtn.GetComponentInChildren<Text>().text = gameData.availableObjects[i].GetComponent<PlaceableObject>().buildingName;
+            
+            SetActiveBuilding script = newbtn.GetComponent<SetActiveBuilding>();
+            script.id = i;
+            script.gc = this;
+            script.gameData = gameData;
+            if (gameData.availableObjects[i].GetComponent<PlaceableObject>().sprite != null)
             {
-                newbtn.GetComponent<Image>().sprite = gameData.availableBuildings[i].GetComponent<PlaceableObject>().sprite;
+               script.image.sprite = gameData.availableObjects[i].GetComponent<PlaceableObject>().sprite;
             }
         }
         button.SetActive(false);
+        buildPanel.SetActive(false);
     }
 }

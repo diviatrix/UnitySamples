@@ -3,6 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
+public enum Resource
+{
+    gold,
+    wood,
+    stone,
+    food,
+    copper,
+    citizen,
+    maxCitizen
+}
+
+[System.Serializable]
 public struct Resources
 {
     public int gold;
@@ -53,11 +65,11 @@ public struct Resources
         bool isLess = false;
         if 
         (
-            r1.copper <= r2.copper ||
-            r1.citizen <= r2.citizen ||
-            r1.food <= r2.food ||
-            r1.gold <= r2.gold ||
-            r1.stone <= r2.stone ||
+            r1.copper <= r2.copper &&
+            r1.citizen <= r2.citizen &&
+            r1.food <= r2.food &&
+            r1.gold <= r2.gold &&
+            r1.stone <= r2.stone &&
             r1.wood <= r2.wood
         )
         {

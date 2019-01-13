@@ -8,10 +8,23 @@ using System.IO;
 [Serializable]
 public class PlayerData
 {
-    public string[] userCreatedObjects;
     public string[] generatedObjects;
     public int gold;
     public int wood;
+}
+
+[Serializable]
+public class xmlData
+{
+    public Resources resources;
+    public string[] sceneObjects;
+}
+
+[Serializable]
+public struct ResourceSprite
+{
+    public Resource resource;
+    public Sprite sprite;
 }
 
 public class GameData : MonoBehaviour
@@ -26,12 +39,10 @@ public class GameData : MonoBehaviour
     public Resources resources = new Resources();
     
     [Header("Game setup")]
-    public List<GameObject> availableBuildings = new List<GameObject>();
     public List<GameObject> availableObjects = new List<GameObject>();
-    public List<PlaceableObject> userCreatedObjects;    
     public List<PlaceableObject> generatedObjects;
+    public List<ResourceSprite> resourcesSprites;
 
-    public GameObject userCreatedObjectsGO;
     public GameObject generatedObjectsGO;
 
     private void Awake() 
@@ -40,18 +51,9 @@ public class GameData : MonoBehaviour
     }
     private void Start()
     {
-        
-        userCreatedObjectsGO = UserCreatedObjectsGO();
         generatedObjectsGO = GeneratedObjectsGO();
     }
 
-    private GameObject UserCreatedObjectsGO()
-    {
-        GameObject go = new GameObject();
-        go.name = "userCreatedObjects";
-
-        return go;
-    }
     private GameObject GeneratedObjectsGO()
     {
         GameObject go = new GameObject();
@@ -60,8 +62,7 @@ public class GameData : MonoBehaviour
         return go;
     }
 
-    // data save to file
-    public void SaveData(PlayerData data)
+    public void SaveData(xmlData data)
     {
         // load file if exist
         BinaryFormatter bf = new BinaryFormatter();
@@ -72,73 +73,44 @@ public class GameData : MonoBehaviour
         file.Close();
 
         GetComponent<Notification>().SetNotification("Game Saved");
-    }
+    }    
 
-    void LoadData()
+    public void LoadGame()
     {
+        GameController gc = GetComponent<GameController>();
+        gc.WipeScene();
         if(File.Exists(Application.persistentDataPath + "/playerInfo.dat"))
         {
             BinaryFormatter bf = new BinaryFormatter();
             FileStream file = File.Open(Application.persistentDataPath + "/playerInfo.dat",FileMode.Open);
-            PlayerData data = (PlayerData)bf.Deserialize(file);
+            xmlData data = (xmlData)bf.Deserialize(file);
             file.Close();
 
-            resources.gold = data.gold;
-            resources.wood = data.wood;
+            resources = data.resources;
+
             
-            // trash with gamecontroller
-            GameController gc = GetComponent<GameController>();
-
-			gc.WipeScene();
-
-            foreach (string s in data.userCreatedObjects)
-            {
-                SerializableObject so = JsonUtility.FromJson<SerializableObject>(s);
-                gc.PlaceBuildingfromSO(so);
-            }
-            foreach (string s in data.generatedObjects)
+            foreach (string s in data.sceneObjects)
             {
                 SerializableObject so = JsonUtility.FromJson<SerializableObject>(s);
                 gc.PlaceObjectfromSO(so);
             }
+            
             GetComponent<Notification>().SetNotification("Game Loaded");
-        }
-    }
-
-    public void LoadGame()
-    {
-        LoadData();        
+        }       
     }
 
     public void SaveGame()
-    {     
-        // create new player data to serialize
-        PlayerData data = new PlayerData();
+    {   
+        xmlData data = new xmlData();
 
-        // create new array of objectsData with strings from buildings on scene list
-        data.userCreatedObjects = new string[userCreatedObjects.Count];
-        data.generatedObjects = new string[generatedObjects.Count];
-
-        // itereate thru each one
-        for (int i = 0; i < userCreatedObjects.Count; i++)
-        {
-            data.userCreatedObjects[i] = JsonUtility.ToJson(userCreatedObjects[i].ObjectSaveData(),true);
-        }
+        data.resources = resources;
+        data.sceneObjects = new string[generatedObjects.Count];
         // itereate thru each one
         for (int i = 0; i < generatedObjects.Count; i++)
         {
-            data.generatedObjects[i] = JsonUtility.ToJson(generatedObjects[i].ObjectSaveData(),true);
+            data.sceneObjects[i] = JsonUtility.ToJson(generatedObjects[i].ObjectSaveData(),true);
         }
-
-        foreach (string s in data.generatedObjects)
-        {
-            print(s);
-        }
-
-        // set game data to savedata
-        data.gold = resources.gold;
-        data.wood = resources.wood;
-
+        
         SaveData(data);
     }
 

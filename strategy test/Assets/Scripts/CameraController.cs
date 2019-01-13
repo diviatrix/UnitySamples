@@ -108,7 +108,7 @@ public class CameraController : MonoBehaviour
                 cameraComponent.orthographicSize += deltaMagnitudeDiff * touchZoomSpeed;
 
                     // Make sure the orthographic size never drops below zero.
-                cameraComponent.orthographicSize = Mathf.Max(cameraComponent.orthographicSize, 0.1f);
+                cameraComponent.orthographicSize = Mathf.Max(cameraComponent.orthographicSize, 0.5f);
             }  
         }
 

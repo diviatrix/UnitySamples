@@ -14,7 +14,14 @@ public class CameraController : MonoBehaviour
     public float rotSpeed; // camera move speed
     public float zLimit; // vertical camera limit
 
-    
+    private bool IsPointerOverUIObject()
+    {
+        PointerEventData eventDataCurrentPosition = new PointerEventData(EventSystem.current);
+        eventDataCurrentPosition.position = new Vector2(Input.mousePosition.x, Input.mousePosition.y);
+        List<RaycastResult> results = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventDataCurrentPosition, results);
+        return results.Count > 0;
+    }
 
     // private stuff
     private bool isOrtho; // is camera orthographic
@@ -25,7 +32,7 @@ public class CameraController : MonoBehaviour
 
 
     // GAME CONTROLLER ->>>>
-    private GameController gameControllerObject;
+    public GameController gameControllerObject;
 
     private void Awake()
     {
@@ -35,7 +42,6 @@ public class CameraController : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        gameControllerObject = GameObject.Find("GameControllerObject").GetComponent<GameController>();
         cameraComponent = GetComponentInChildren<Camera>(); // search for camera component
 
         // set ortho camera mode
@@ -75,6 +81,10 @@ public class CameraController : MonoBehaviour
         
         if (Input.touchCount > 0)
         {
+            if (IsPointerOverUIObject())
+            {
+                return;
+            }
 
             Touch touch = Input.GetTouch(0);
 
@@ -100,7 +110,6 @@ public class CameraController : MonoBehaviour
 
                 // Find the difference in the distances between each frame.
                 float deltaMagnitudeDiff = prevTouchDeltaMag - touchDeltaMag;
-
                 
                    // ... change the orthographic size based on the change in distance between the touches.
                 cameraComponent.orthographicSize += deltaMagnitudeDiff * touchZoomSpeed;
@@ -117,7 +126,7 @@ public class CameraController : MonoBehaviour
             // camera rot
             if (Input.GetMouseButton(1))
             {
-                if (Application.platform == RuntimePlatform.Android) return;
+                if (Application.isMobilePlatform) return;
                 CameraRotationHandler();
             }    
                 

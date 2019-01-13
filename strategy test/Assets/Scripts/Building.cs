@@ -3,28 +3,39 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum ObjectType
+{
+    Building,
+    Object
+}
 public class Building : ClickableObject
 {
     [Header("Prefab settings")]
-    public GameObject buildingPrefab;
+    public ObjectType type;
+    public GameObject prefab;
     public GameObject popupPrefab;
     public GameObject bgPrefab;
     public Sprite sprite;
     public string buildingName;
+    public string description;
+    public Resources cost;
+    
+    [Header("Debug publics")]
+    public GameData gameData; 
  
     // privates
     private GameObject building,popup;
-    private GameData GameDataObject;
+    
     private Material normalMat;
 
     // handle when click on this object
     public override void OnClick()
     {
-        //if (popup.activeSelf == true)
-        //{
-        //    return;
-        //}
-        //popup.SetActive(true);
+        if (popup.activeSelf == true)
+        {
+            return;
+        }
+        popup.SetActive(true);
     }
     // Start is called before the first frame update
     public void Initialize()
@@ -34,12 +45,22 @@ public class Building : ClickableObject
         AddBg();
 
         // Create GameObject
-        building = InstantiateObject(buildingPrefab);
+        building = InstantiateObject(prefab);
         building.name = buildingName;    
 
+        if (type == ObjectType.Building)
+        {
+            transform.SetParent(gameData.userCreatedObjectsGO.transform);
+            gameData.userCreatedObjects.Add(this);
+        } 
+        if (type == ObjectType.Object)
+        {
+            transform.SetParent(gameData.generatedObjectsGO.transform);
+            gameData.generatedObjects.Add(this);
+         }
         // push this building to GameData
-        GameDataObject = GameObject.Find("GameDataObject").GetComponent<GameData>();
-        GameDataObject.bldOnScene.Add(this);
+        gameData.GetComponent<Notification>().text.text = "Placed "+ buildingName;
+        
     }
     
     public void InitializeWithSO(SerializableObject so)
@@ -100,6 +121,15 @@ public class Building : ClickableObject
     }
     public void DestroyMe()
     {        
+        if (type == ObjectType.Building)
+        {
+            gameData.userCreatedObjects.Remove(this);
+        }
+        if (type == ObjectType.Object)
+        {
+            gameData.generatedObjects.Remove(this);
+        }
+        gameData.GetComponent<Notification>().text.text = "Destroyed "+ buildingName;
         Destroy(gameObject);
     }
 
@@ -115,12 +145,10 @@ public class Building : ClickableObject
         saveData.name = buildingName;
         saveData.position = JsonUtility.ToJson(transform.position, true);
         saveData.rotation = JsonUtility.ToJson(building.transform.rotation, true);
-        saveData.prefabName = buildingPrefab.name;
+        saveData.prefabName = prefab.name;
 
         return saveData;
-    }
-
-    
+    }    
 
     // Update is called once per frame
     void Update()

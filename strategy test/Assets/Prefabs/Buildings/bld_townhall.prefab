@@ -44,18 +44,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05df5fa607f4f7741975187f5dd86729, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  saveData:
-    name: 
-    prefabName: 
-    position:
-      x: 0
-      y: 0
-      z: 0
-  buildingPrefab: {fileID: 8108589841814934654, guid: af12a7455ac01044aa029ae3ec4c5f3a,
-    type: 3}
+  type: 0
+  prefab: {fileID: 8108589841814934654, guid: af12a7455ac01044aa029ae3ec4c5f3a, type: 3}
   popupPrefab: {fileID: 2484107855860106553, guid: 78865c846c9e39045a009bc8c52bcfd6,
     type: 3}
   bgPrefab: {fileID: 2918311507915140970, guid: 49a6d576b69ecec459e6f1befd7a46a2,
     type: 3}
   sprite: {fileID: 21300000, guid: 9b7b92051abf1f449839ff419fef27e0, type: 3}
   buildingName: Town Hall
+  description: Main building of your city, opens new buildings and produce 10 citizens
+  cost:
+    gold: 50
+    wood: 10
+    stone: 25
+    food: 0
+    copper: 5
+    citizen: -10
+  gameData: {fileID: 0}

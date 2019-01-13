@@ -5,13 +5,14 @@ using UnityEngine;
 public class SetActiveBuilding : MonoBehaviour
 {
     public GameController gc;
+    public GameData gameData;
     public int id;
 
     public void Set()
     {
         if (gc != null)
         {
-            gc.chosenPrefabToBuild = gc.Buildings[id];
+            gc.chosenPrefabToBuild = gameData.availableBuildings[id];
             gc.EnterBuildMode();
         }
     }

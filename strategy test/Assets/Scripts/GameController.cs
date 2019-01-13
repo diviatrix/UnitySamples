@@ -5,15 +5,6 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 [System.Serializable]
-public struct SerializableObject
-{
-    public string name;
-    public string prefabName;
-    public string position;
-    public string rotation;
-}
-
-[System.Serializable]
 public struct BuildingActionPanel
 {
     public GameObject panel;
@@ -44,10 +35,6 @@ public class GameController : MonoBehaviour
     
     public GameObject selectedGO;
 
-
-    // privates 
-    
-    private GameObject gameCamera;
     // frames
     private GameObject buildingSelectionFrameObject;
     private GameObject buildFrameObject;
@@ -84,17 +71,15 @@ public class GameController : MonoBehaviour
     }
 
     private void CoreObjectsFindOnScene()
-    {;
-        gameCamera = GameObject.Find("MainCamera");
+    {
         grid = FindObjectOfType<SnapGrid>();
     }
 
     public void SelectedDestroy()
     {
         if (!selectedGO) return;
-        Building bld = selectedGO.GetComponent<Building>();
-        //gameData.userCreatedBuildings.Remove(bld);
-        gameData.resources = gameData.resources + bld.cost;
+        PlaceableObject bld = selectedGO.GetComponent<PlaceableObject>();
+                
         bld.DestroyMe();
         ClearSelection();
         
@@ -102,15 +87,14 @@ public class GameController : MonoBehaviour
     public void SelectedRotate()
     {
         if (!selectedGO) return;
-        selectedGO.GetComponent<Building>().RotateMe(90);
+        selectedGO.GetComponent<PlaceableObject>().RotateMe(90);
     }
 
     public void EnterBuildMode()
     {
-        //buildFrameObject.SetActive(true);
         ClearSelection();
         
-        Building buildingComponent =  chosenPrefabToBuild.GetComponent<Building>();
+        PlaceableObject buildingComponent =  chosenPrefabToBuild.GetComponent<PlaceableObject>();
         buildingActionPanel.panel.SetActive(true);
         buildingActionPanel.image.sprite = buildingComponent.sprite;
         buildingActionPanel.nameText.text = buildingComponent.buildingName;
@@ -170,7 +154,6 @@ public class GameController : MonoBehaviour
     }
     void EnableBuildingSelectionFrameTo(GameObject go)
     {
-        //frameObject.transform.SetParent(go.transform);
         buildingSelectionFrameObject.transform.position = go.transform.position;
         buildingSelectionFrameObject.SetActive(true);
     }
@@ -178,12 +161,6 @@ public class GameController : MonoBehaviour
     void DisableSelectionFrame()
     {
         buildingSelectionFrameObject.SetActive(false);
-    }
-
-    public void AddResource(Resource res, int amount)
-    {
-        // #todo: add res to data
-
     }
 
     void ShowActionPanel(bool show)
@@ -207,9 +184,9 @@ public class GameController : MonoBehaviour
             }
 
             // check if can build, and build
-            if (CanBuildIt(chosenPrefabToBuild.GetComponent<Building>()))
+            if (CanBuildIt(chosenPrefabToBuild.GetComponent<PlaceableObject>()))
             {
-                gameData.resources = gameData.resources - chosenPrefabToBuild.GetComponent<Building>().cost;
+                gameData.resources = gameData.resources - chosenPrefabToBuild.GetComponent<PlaceableObject>().cost;
                 PlaceObjectWithParams(chosenPrefabToBuild, point, Quaternion.identity,ObjectType.Building);
             }
             EnterBuildMode();
@@ -219,7 +196,7 @@ public class GameController : MonoBehaviour
         ClickableObject clickableGo = clickedGo.GetComponent<ClickableObject>();
         if (clickableGo)
         {
-            Building clickedBuilding = clickableGo.GetComponent<Building>();
+            PlaceableObject clickedBuilding = clickableGo.GetComponent<PlaceableObject>();
             if (clickedBuilding)
             {
                 selectedGO = clickableGo.gameObject; // set clicked go as selected
@@ -232,7 +209,7 @@ public class GameController : MonoBehaviour
     }
 
     // gameplay build
-    public bool CanBuildIt(Building bld)
+    public bool CanBuildIt(PlaceableObject bld)
     {
         bool can = false;
         if 
@@ -390,12 +367,12 @@ public class GameController : MonoBehaviour
 
     public void WipeScene()
     {
-        gameData.userCreatedObjects = new List<Building>();
+        gameData.userCreatedObjects = new List<PlaceableObject>();
         foreach (Transform child in gameData.userCreatedObjectsGO.transform)
         {
             Destroy(child.gameObject);
         }
-        gameData.generatedObjects = new List<Building>();
+        gameData.generatedObjects = new List<PlaceableObject>();
         foreach (Transform child in gameData.generatedObjectsGO.transform)
         {
             Destroy(child.gameObject);
@@ -407,7 +384,7 @@ public class GameController : MonoBehaviour
     {
         Vector3 position = grid.GetNearestPointOnGrid(clickPoint);
         GameObject go = GameObject.Instantiate(prefab);
-        Building bld = go.GetComponent<Building>();
+        PlaceableObject bld = go.GetComponent<PlaceableObject>();
         bld.gameData = gameData;
         bld.type = type;
         bld.Initialize();
@@ -422,7 +399,7 @@ public class GameController : MonoBehaviour
 
         for (int i = 0; i < list.Count; i++)
         {
-            if (str == list[i].GetComponent<Building>().buildingName)
+            if (str == list[i].GetComponent<PlaceableObject>().buildingName)
             {
                 id = i;
             }
@@ -432,7 +409,7 @@ public class GameController : MonoBehaviour
     public void PlaceBuildingfromSO(SerializableObject so)
     {
         GameObject go = GameObject.Instantiate(gameData.availableBuildings[SearchIdByNameIn(so.name, gameData.availableBuildings)]);
-        Building building = go.GetComponent<Building>();
+        PlaceableObject building = go.GetComponent<PlaceableObject>();
         building.gameData = gameData;
         building.type = ObjectType.Building;
         building.InitializeWithSO(so);
@@ -440,7 +417,7 @@ public class GameController : MonoBehaviour
     public void PlaceObjectfromSO(SerializableObject so)
     {
         GameObject go = GameObject.Instantiate(gameData.availableObjects[SearchIdByNameIn(so.name, gameData.availableObjects)]);
-        Building building = go.GetComponent<Building>();
+        PlaceableObject building = go.GetComponent<PlaceableObject>();
         building.gameData = gameData;
         building.type = ObjectType.Object;
         building.InitializeWithSO(so);
@@ -452,13 +429,13 @@ public class GameController : MonoBehaviour
         for (int i = 0; i < gameData.availableBuildings.Count; i++)
         {
             GameObject newbtn = GameObject.Instantiate(button,buildPanel.transform);
-            newbtn.GetComponentInChildren<Text>().text = gameData.availableBuildings[i].GetComponent<Building>().buildingName;
+            newbtn.GetComponentInChildren<Text>().text = gameData.availableBuildings[i].GetComponent<PlaceableObject>().buildingName;
             newbtn.GetComponent<SetActiveBuilding>().id = i;
             newbtn.GetComponent<SetActiveBuilding>().gc = this;
             newbtn.GetComponent<SetActiveBuilding>().gameData = gameData;
-            if (gameData.availableBuildings[i].GetComponent<Building>().sprite != null)
+            if (gameData.availableBuildings[i].GetComponent<PlaceableObject>().sprite != null)
             {
-                newbtn.GetComponent<Image>().sprite = gameData.availableBuildings[i].GetComponent<Building>().sprite;
+                newbtn.GetComponent<Image>().sprite = gameData.availableBuildings[i].GetComponent<PlaceableObject>().sprite;
             }
         }
         button.SetActive(false);

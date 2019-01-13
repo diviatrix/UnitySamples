@@ -28,8 +28,8 @@ public class GameData : MonoBehaviour
     [Header("Game setup")]
     public List<GameObject> availableBuildings = new List<GameObject>();
     public List<GameObject> availableObjects = new List<GameObject>();
-    public List<Building> userCreatedObjects;    
-    public List<Building> generatedObjects;
+    public List<PlaceableObject> userCreatedObjects;    
+    public List<PlaceableObject> generatedObjects;
 
     public GameObject userCreatedObjectsGO;
     public GameObject generatedObjectsGO;
@@ -144,12 +144,7 @@ public class GameData : MonoBehaviour
 
     public void AddResources(Resources res)
     {
-        resources.citizen += res.citizen;
-        resources.copper += res.copper;
-        resources.food += res.food;
-        resources.gold += res.gold;
-        resources.stone += res.stone;
-        resources.wood += res.wood;
+        resources = resources + res;
     }
 }
 

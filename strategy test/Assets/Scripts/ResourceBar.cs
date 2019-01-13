@@ -26,7 +26,7 @@ public class ResourceBar : MonoBehaviour
         }
         UpdateTopBar();
     }
-    
+
     void UpdateTopBar()
     {
         TopBarBtns[0].GetComponentInChildren<Text>().text = "Gold\n" + gameData.resources.gold;
@@ -40,6 +40,5 @@ public class ResourceBar : MonoBehaviour
     private void FixedUpdate() 
     {
         UpdateTopBar();
-    }
-    
+    }    
 }

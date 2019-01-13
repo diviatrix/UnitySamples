@@ -3,12 +3,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public struct SerializableObject
+{
+    public ObjectType type;
+    public string name;
+    public string prefabName;
+    public string position;
+    public string rotation;
+}
+
 public enum ObjectType
 {
     Building,
     Object
 }
-public class Building : ClickableObject
+public class PlaceableObject : ClickableObject
 {
     [Header("Prefab settings")]
     public ObjectType type;
@@ -94,8 +104,9 @@ public class Building : ClickableObject
         }
         popup = InstantiateObject(popupPrefab);
         RectTransform popup_rt = popup.GetComponent<RectTransform>();
-        popup_rt.localPosition = new Vector3(0,1,.5f);
-        popup_rt.Rotate(transform.right,45);
+        popup_rt.localPosition = new Vector3(0,2,0);
+        popup_rt.Rotate(new Vector3(45,-45,0));
+        //popup_rt.Rotate(transform.up,-45);
         popup.SetActive(false);
         List<Transform> popup_btns = new List<Transform>();
 
@@ -129,6 +140,7 @@ public class Building : ClickableObject
         {
             gameData.generatedObjects.Remove(this);
         }
+        gameData.resources = gameData.resources + cost; 
         gameData.GetComponent<Notification>().text.text = "Destroyed "+ buildingName;
         Destroy(gameObject);
     }
@@ -146,8 +158,11 @@ public class Building : ClickableObject
         saveData.position = JsonUtility.ToJson(transform.position, true);
         saveData.rotation = JsonUtility.ToJson(building.transform.rotation, true);
         saveData.prefabName = prefab.name;
-
+        saveData.type = type;
+        
+        print (saveData);
         return saveData;
+        
     }    
 
     // Update is called once per frame

@@ -26,14 +26,8 @@ public class CameraController : MonoBehaviour
     // private stuff
     private bool isOrtho; // is camera orthographic
     Camera cameraComponent; // just link for camera
-    private GameObject playerObject; // link for player parent object
     private Transform playerTransform; // link for player parent transform
     
-
-
-    // GAME CONTROLLER ->>>>
-    public GameController gameControllerObject;
-
     private void Awake()
     {
         
@@ -48,8 +42,7 @@ public class CameraController : MonoBehaviour
         isOrtho = cameraComponent.orthographic;
 
         // set player object and transform
-        playerObject = GameObject.Find("Player");
-        playerTransform = playerObject.transform; 
+        playerTransform = transform.parent; 
     }
 
     // Update is called once per frame

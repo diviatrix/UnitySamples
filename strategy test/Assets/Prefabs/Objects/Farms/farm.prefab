@@ -65,4 +65,9 @@ MonoBehaviour:
     food: 0
     copper: 0
     citizen: 0
+  rps:
+  - resource: 3
+    amount: 1
+    perSeconds: 30
+    timer: 0
   gameData: {fileID: 0}

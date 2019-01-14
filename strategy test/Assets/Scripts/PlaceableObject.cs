@@ -18,6 +18,15 @@ public enum ObjectType
     Building,
     Object
 }
+
+[System.Serializable]
+public struct ResourcePerTime
+{
+    public Resource resource;
+    public int amount;
+    public float perSeconds;
+    public float timer;
+}
 public class PlaceableObject : ClickableObject
 {
     [Header("Prefab settings")]
@@ -37,23 +46,21 @@ public class PlaceableObject : ClickableObject
     public bool canSell;
     public bool canHarvest;
     public Resources cost;
+    public List<ResourcePerTime> rps;
 
     
     [Header("Debug publics")]
     public GameData gameData; 
  
     // privates
-    private GameObject building,popup;
-    
+    private GameObject building;
+    private float timer;
     private Material normalMat;
 
     // handle when click on this object
     public override void OnClick()
     {
-        if(popup == null){return;}
-        if(popup.activeSelf == true){return;}
 
-        popup.SetActive(true);
     }
     // Start is called before the first frame update
     public void Initialize()
@@ -76,7 +83,15 @@ public class PlaceableObject : ClickableObject
 
         // push this building to GameData
         gameData.GetComponent<Notification>().text.text = "Placed "+ buildingName;
-        
+
+        if(rps.Count != 0)
+        {
+            foreach (ResourcePerTime rpt in rps)
+            {
+                //rpt.timer = Time.time + rpt.perSeconds;
+                gameData.resources.AddResource(rpt.resource, rpt.amount); 
+            }
+        }
     }
     
     public void InitializeWithSO(SerializableObject so)
@@ -144,7 +159,14 @@ public class PlaceableObject : ClickableObject
 
     // Update is called once per frame
     void Update()
-    {
-        
+    {        
+        if(rps.Count != 0)
+        {
+            foreach (ResourcePerTime rpt in rps)
+            {
+                //rpt.timer = Time.time + rpt.perSeconds;
+                gameData.resources.AddResource(rpt.resource, rpt.amount); 
+            }
+        }
     }
 }

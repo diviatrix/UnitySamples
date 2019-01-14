@@ -38,7 +38,6 @@ public struct Resources
     {
         return r1.Equals(r2);
     }
-
     public static bool operator !=(Resources r1, Resources r2) 
     {
         return !r1.Equals(r2);
@@ -101,5 +100,33 @@ public struct Resources
         r1.stone - r2.stone,
         r1.wood - r2.wood
         );
+    }
+
+    public void AddResource(Resource res, int amount)
+    {
+        if(res == Resource.citizen)
+        {
+            citizen += amount;
+        }
+        if(res == Resource.copper)
+        {
+            copper += amount;
+        }
+        if(res == Resource.food)
+        {
+            food += amount;
+        }
+        if(res == Resource.gold)
+        {
+            gold += amount;
+        }
+        if(res == Resource.stone)
+        {
+            stone += amount;
+        }
+        if(res == Resource.wood)
+        {
+            wood += amount;
+        }
     }
 }

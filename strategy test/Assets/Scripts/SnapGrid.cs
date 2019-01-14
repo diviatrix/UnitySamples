@@ -41,13 +41,13 @@ public class SnapGrid : MonoBehaviour
             }                
         }
 
-        /* 
+        
         foreach (Vector3 v in allPointsOnMap)
         {
             Transform cell = Instantiate(cellPrefab, v, Quaternion.identity).transform;
             cell.SetParent(transform);
         }
-        */
+        
     }
     private void OnDrawGizmos()
     {

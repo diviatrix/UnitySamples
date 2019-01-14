@@ -66,4 +66,5 @@ MonoBehaviour:
     food: 0
     copper: 0
     citizen: 0
+  rpm: []
   gameData: {fileID: 0}

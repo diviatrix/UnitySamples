@@ -45,14 +45,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
+  prefab: {fileID: 2531370747734348600, guid: 7b786fac12117f34e937c6b1a84f4684, type: 3}
+  bgPrefab: {fileID: 6046403421447144417, guid: 7ee6429a632927346a4ce711396c4858,
+    type: 3}
+  destroyEffect: {fileID: 0}
+  buildEffect: {fileID: 0}
+  sprite: {fileID: 21300000, guid: 7b5b21dea72f7d24a9bc1d382caf01e4, type: 3}
+  buildingName: Tree
+  description: Simple tree, gather it to get 10 wood
   canBuild: 0
   canSell: 0
   canHarvest: 1
-  prefab: {fileID: 2531370747734348600, guid: 7b786fac12117f34e937c6b1a84f4684, type: 3}
-  bgPrefab: {fileID: 0}
-  sprite: {fileID: 21300000, guid: 7b5b21dea72f7d24a9bc1d382caf01e4, type: 3}
-  buildingName: Tree
-  description: Simple pine tree, gather it to get 10 wood
+  canRotate: 0
   cost:
     gold: 0
     wood: 10
@@ -60,4 +64,14 @@ MonoBehaviour:
     food: 0
     copper: 0
     citizen: 0
+  plusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 0
+  minusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 0
   gameData: {fileID: 0}

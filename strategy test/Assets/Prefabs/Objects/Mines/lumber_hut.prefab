@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   prefab: {fileID: 3848313635828911443, guid: 4edb8a19eaeb9ac4280e218223a37fa5, type: 3}
-  bgPrefab: {fileID: 2918311507915140970, guid: 49a6d576b69ecec459e6f1befd7a46a2,
+  bgPrefab: {fileID: 6046403421447144417, guid: 7ee6429a632927346a4ce711396c4858,
     type: 3}
   destroyEffect: {fileID: 1892078723244562, guid: 46876a2780737ec45a19d62f88e5ce56,
     type: 3}
@@ -58,6 +58,7 @@ MonoBehaviour:
   canBuild: 1
   canSell: 1
   canHarvest: 0
+  canRotate: 1
   cost:
     gold: 0
     wood: 10
@@ -65,9 +66,14 @@ MonoBehaviour:
     food: 0
     copper: 0
     citizen: 0
-  rps:
-  - resource: 1
+  plusResource:
+    resource: 1
     amount: 1
-    perSeconds: 30
-    timer: 0
+    perSeconds: 10
+    isGathering: 1
+  minusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 1
   gameData: {fileID: 0}

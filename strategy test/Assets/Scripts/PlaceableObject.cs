@@ -19,14 +19,6 @@ public enum ObjectType
     Object
 }
 
-[System.Serializable]
-public struct ResourcePerTime
-{
-    public Resource resource;
-    public int amount;
-    public float perSeconds;
-    public float timer;
-}
 public class PlaceableObject : ClickableObject
 {
     [Header("Prefab settings")]
@@ -45,8 +37,10 @@ public class PlaceableObject : ClickableObject
     public bool canBuild;
     public bool canSell;
     public bool canHarvest;
+    public bool canRotate;
     public Resources cost;
-    public List<ResourcePerTime> rps;
+    public ResourcePerTime plusResource;
+    public ResourcePerTime minusResource;
 
     
     [Header("Debug publics")]
@@ -60,7 +54,7 @@ public class PlaceableObject : ClickableObject
     // handle when click on this object
     public override void OnClick()
     {
-
+        gameData.GetComponent<SelectionActionPanelController>().SelectObject(this);
     }
     // Start is called before the first frame update
     public void Initialize()
@@ -78,20 +72,13 @@ public class PlaceableObject : ClickableObject
         if (buildEffect != null)
         {
             GameObject.Instantiate(buildEffect,transform);
-        }
-        
+        }        
 
         // push this building to GameData
         gameData.GetComponent<Notification>().text.text = "Placed "+ buildingName;
 
-        if(rps.Count != 0)
-        {
-            foreach (ResourcePerTime rpt in rps)
-            {
-                //rpt.timer = Time.time + rpt.perSeconds;
-                gameData.resources.AddResource(rpt.resource, rpt.amount); 
-            }
-        }
+        StartProduction();
+        StartReduction();
     }
     
     public void InitializeWithSO(SerializableObject so)
@@ -157,16 +144,39 @@ public class PlaceableObject : ClickableObject
         return saveData;        
     }    
 
-    // Update is called once per frame
-    void Update()
-    {        
-        if(rps.Count != 0)
+    void StartProduction()
+    {
+        StartCoroutine(plusResourceTimer());
+        plusResource.isGathering = true;
+    }
+
+    void StartReduction()
+    {
+        StartCoroutine(minusResourceTimer());
+        minusResource.isGathering = true;
+    }
+    private void FixedUpdate() 
+    {
+        if (plusResource.amount != 0 && !plusResource.isGathering)
         {
-            foreach (ResourcePerTime rpt in rps)
-            {
-                //rpt.timer = Time.time + rpt.perSeconds;
-                gameData.resources.AddResource(rpt.resource, rpt.amount); 
-            }
+            StartProduction();
         }
+        if (minusResource.amount != 0 && !minusResource.isGathering)
+        {
+            StartReduction();
+        }
+    }
+
+    IEnumerator plusResourceTimer()
+    {   
+        yield return new WaitForSeconds(plusResource.perSeconds);
+        gameData.resources.AddResource(plusResource.resource, plusResource.amount); 
+        plusResource.isGathering = false;
+    }
+    IEnumerator minusResourceTimer()
+    {   
+        yield return new WaitForSeconds(minusResource.perSeconds);
+        gameData.resources.AddResource(minusResource.resource, minusResource.amount); 
+        minusResource.isGathering = false;
     }
 }

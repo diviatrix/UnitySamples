@@ -6,14 +6,6 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
 [Serializable]
-public class PlayerData
-{
-    public string[] generatedObjects;
-    public int gold;
-    public int wood;
-}
-
-[Serializable]
 public class xmlData
 {
     public Resources resources;
@@ -30,6 +22,9 @@ public struct ResourceSprite
 public class GameData : MonoBehaviour
 {
     public static GameData gameData;
+
+    [Header("Scriptable obj")]
+    
     
     // stats
     [Header("Game Settings")]
@@ -43,15 +38,20 @@ public class GameData : MonoBehaviour
     public List<PlaceableObject> generatedObjects;
     public List<ResourceSprite> resourcesSprites;
 
+    
     public GameObject generatedObjectsGO;
 
     private void Awake() 
     {
-        resources = startingResources;
+        ResetRes();
     }
     private void Start()
     {
         generatedObjectsGO = GeneratedObjectsGO();
+    }
+    public void ResetRes()
+    {
+        resources = startingResources;       
     }
 
     private GameObject GeneratedObjectsGO()

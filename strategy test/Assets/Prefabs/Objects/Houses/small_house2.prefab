@@ -64,4 +64,14 @@ MonoBehaviour:
     food: 0
     copper: 0
     citizen: -5
+  plusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 1
+  minusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 1
   gameData: {fileID: 0}

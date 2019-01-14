@@ -13,16 +13,14 @@ public class GameController : MonoBehaviour
     
     [Header("UI Object bindings")]
     
-    public GameObject selectionActionPanel; // GUI panel with selected object actions
-    public GameObject buildPanel;
-    public GameObject button;
+    
      
     public Text notificationText; 
 
     [Header("Object debug binding")]
-    public GameObject chosenPrefabToBuild; // prefab for instantiation
-    
+    public GameObject chosenPrefabToBuild; // prefab for instantiation    
     public GameObject selectedGO;
+    public ResourcePerTime food = new ResourcePerTime() {resource = Resource.food, perSeconds = 60, isGathering = true};
 
     // frames
     private GameObject buildingSelectionFrameObject;
@@ -39,7 +37,7 @@ public class GameController : MonoBehaviour
     {
         isMobile = Application.isMobilePlatform;
         CoreObjectsFindOnScene();
-        FillBuildPanel();
+        GetComponent<BuildPanelController>().FillBuildPanel();
         
         InstantiateFrame();
         InstantiateBuildFrame();
@@ -117,10 +115,6 @@ public class GameController : MonoBehaviour
         buildingSelectionFrameObject.SetActive(false);
     }
 
-    void ShowActionPanel(bool show)
-    {
-        selectionActionPanel.SetActive(show);
-    }
 
     public void HandleObjectsInteraction(GameObject clickedGo, Vector3 point)
     {
@@ -155,8 +149,7 @@ public class GameController : MonoBehaviour
             {
                 selectedGO = clickableGo.gameObject; // set clicked go as selected
                 EnableBuildingSelectionFrameTo(selectedGO);
-                ExitBuildMode();
-                ShowActionPanel(true);
+                ExitBuildMode();                
             }
             clickableGo.OnClick();
         }
@@ -269,11 +262,11 @@ public class GameController : MonoBehaviour
         GetComponent<FieldGenerator>().Generate();        
     }
 
-    void ClearSelection() // clear unit selection
+    public void ClearSelection() // clear unit selection
     {
         DisableSelectionFrame();
         selectedGO = null;
-        ShowActionPanel(false);
+        GetComponent<SelectionActionPanelController>().ShowActionPanel(false);
     }
 
     void InstantiateFrame()
@@ -344,27 +337,25 @@ public class GameController : MonoBehaviour
         building.InitializeWithSO(so);
     }
 
-    // fill ui build panel
-    void FillBuildPanel()
+    private void FixedUpdate() 
     {
-        for (int i = 0; i < gameData.availableObjects.Count; i++)
+        if (gameData.resources.citizen != 0 && !food.isGathering)
         {
-            // dont add button if marked as cant build
-            if (!gameData.availableObjects[i].GetComponent<PlaceableObject>().canBuild){continue;}
-
-            GameObject newbtn = GameObject.Instantiate(button,buildPanel.transform);
-            newbtn.GetComponentInChildren<Text>().text = gameData.availableObjects[i].GetComponent<PlaceableObject>().buildingName;
-            
-            SetActiveBuilding script = newbtn.GetComponent<SetActiveBuilding>();
-            script.id = i;
-            script.gc = this;
-            script.gameData = gameData;
-            if (gameData.availableObjects[i].GetComponent<PlaceableObject>().sprite != null)
-            {
-               script.image.sprite = gameData.availableObjects[i].GetComponent<PlaceableObject>().sprite;
-            }
+            StartFoodReduction();
         }
-        button.SetActive(false);
-        buildPanel.SetActive(false);
+    }
+
+    void StartFoodReduction()
+    {
+        food.amount = gameData.resources.citizen;
+        StartCoroutine(CitizenEatTimer());
+        food.isGathering = true;
+    }
+
+    IEnumerator CitizenEatTimer()
+    {   
+        yield return new WaitForSeconds(food.perSeconds);
+        gameData.resources.AddResource(food.resource, -food.amount); 
+        food.isGathering = false;
     }
 }

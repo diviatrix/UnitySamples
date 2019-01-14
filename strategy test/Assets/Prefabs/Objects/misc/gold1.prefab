@@ -45,12 +45,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  canBuild: 0
   prefab: {fileID: 4511821216517056579, guid: 6aa9b6479e9ef0442886e38be66cbb38, type: 3}
-  bgPrefab: {fileID: 0}
+  bgPrefab: {fileID: 6046403421447144417, guid: 7ee6429a632927346a4ce711396c4858,
+    type: 3}
+  destroyEffect: {fileID: 0}
+  buildEffect: {fileID: 0}
   sprite: {fileID: 21300000, guid: e39dbba6758112b449f3a070c9a9ce6f, type: 3}
   buildingName: Gold Ore
-  description: 'This is '
+  description: This is gold ore. Build Gold Mine near to gather ore.
+  canBuild: 0
+  canSell: 0
+  canHarvest: 0
+  canRotate: 0
   cost:
     gold: 10
     wood: 0
@@ -58,4 +64,14 @@ MonoBehaviour:
     food: 0
     copper: 0
     citizen: 0
+  plusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 0
+  minusResource:
+    resource: 0
+    amount: 0
+    perSeconds: 0
+    isGathering: 0
   gameData: {fileID: 0}

@@ -46,7 +46,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 0
   prefab: {fileID: 8108589841814934654, guid: af12a7455ac01044aa029ae3ec4c5f3a, type: 3}
-  bgPrefab: {fileID: 2918311507915140970, guid: 49a6d576b69ecec459e6f1befd7a46a2,
+  bgPrefab: {fileID: 6046403421447144417, guid: 7ee6429a632927346a4ce711396c4858,
     type: 3}
   destroyEffect: {fileID: 1892078723244562, guid: 46876a2780737ec45a19d62f88e5ce56,
     type: 3}
@@ -54,15 +54,26 @@ MonoBehaviour:
     type: 3}
   sprite: {fileID: 21300000, guid: 46c007a79afbaca408ee8982990a0d10, type: 3}
   buildingName: Town Hall
-  description: Main building of your city, opens new buildings and produce 10 citizens
+  description: Main building of your city, opens new buildings and host 5 citizens
   canBuild: 1
   canSell: 1
   canHarvest: 0
+  canRotate: 1
   cost:
     gold: 50
     wood: 10
     stone: 25
     food: 0
     copper: 5
-    citizen: -10
+    citizen: -5
+  plusResource:
+    resource: 6
+    amount: 0
+    perSeconds: 0
+    isGathering: 1
+  minusResource:
+    resource: 3
+    amount: 0
+    perSeconds: 0
+    isGathering: 0
   gameData: {fileID: 0}

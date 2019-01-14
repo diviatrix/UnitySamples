@@ -10,7 +10,8 @@ public class BuildActionPanelController : MonoBehaviour
     public Image image;
     public Text nameText;
     public Text descriptionText;
-    public Button closeButton;
+    
+    //public Button closeButton;
 
     [Header("Cost object bindings")]
     public GameObject gold;
